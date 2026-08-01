@@ -7,6 +7,7 @@ Referencia oficial de Mexico: Servicio Meteorologico Nacional (CONAGUA/SMN).
 Uso:
   python3 mx_weather.py --place "Guadalajara"
   python3 mx_weather.py --place "Monterrey" --days 3
+  python3 mx_weather.py --lat 19.43 --lon -99.13 --days 5
 """
 
 import argparse
@@ -81,14 +82,21 @@ def fetch_forecast(lat, lon, days):
 
 def main():
     parser = argparse.ArgumentParser(description="Clima en ciudades de Mexico (Open-Meteo)")
-    parser.add_argument("--place", required=True, help="Ciudad o localidad en Mexico")
+    parser.add_argument("--place", help="Ciudad o localidad en Mexico")
+    parser.add_argument("--lat", type=float, help="Latitud (alternativa a --place)")
+    parser.add_argument("--lon", type=float, help="Longitud (alternativa a --place)")
     parser.add_argument("--days", type=int, default=3, help="Dias de pronostico (max 7)")
     args = parser.parse_args()
 
     if not 1 <= args.days <= 7:
         parser.error("--days debe estar entre 1 y 7")
 
-    anchor = geocode(args.place)
+    if args.lat is not None and args.lon is not None:
+        anchor = {"query": "coordenadas", "latitude": args.lat, "longitude": args.lon}
+    elif args.place:
+        anchor = geocode(args.place)
+    else:
+        parser.error("Proporciona --place o --lat/--lon.")
     forecast = fetch_forecast(anchor["latitude"], anchor["longitude"], args.days)
 
     current = forecast.get("current") or {}

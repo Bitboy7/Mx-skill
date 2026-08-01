@@ -21,13 +21,14 @@ Consulta el **clima actual y el pronóstico** de una ciudad de México usando la
 
 ## Inputs
 
-- `--place`: ciudad o localidad en México.
+- `--place`: ciudad o localidad en México, o `--lat/--lon` para usar coordenadas directas.
 - `--days`: días de pronóstico (1–7, por defecto 3).
 
 ## Workflow
 
 ```bash
 npx -y @nomadamas/k-skill@0 exec mx-weather scripts/mx_weather.py -- --place "Guadalajara" --days 3
+npx -y @nomadamas/k-skill@0 exec mx-weather scripts/mx_weather.py -- --lat 19.43 --lon -99.13 --days 5
 ```
 
 La ciudad se resuelve con geocodificación pública (Open-Meteo) y el pronóstico usa el endpoint público de Open-Meteo.

@@ -72,13 +72,28 @@ def resolve(place):
 
 def main():
     parser = argparse.ArgumentParser(description="Rutas de transporte en Mexico")
-    parser.add_argument("--from", dest="origin", required=True, help="Origen (lugar o lon,lat)")
-    parser.add_argument("--to", dest="destination", required=True, help="Destino (lugar o lon,lat)")
+    parser.add_argument("--from", dest="origin", help="Origen (lugar o lon,lat)")
+    parser.add_argument("--from-lat", type=float, help="Latitud del origen (con --from-lon)")
+    parser.add_argument("--from-lon", type=float, help="Longitud del origen (con --from-lat)")
+    parser.add_argument("--to", dest="destination", help="Destino (lugar o lon,lat)")
+    parser.add_argument("--to-lat", type=float, help="Latitud del destino (con --to-lon)")
+    parser.add_argument("--to-lon", type=float, help="Longitud del destino (con --to-lat)")
     parser.add_argument("--mode", choices=list(PROFILES.keys()), default="driving")
     args = parser.parse_args()
 
-    origin = resolve(args.origin)
-    destination = resolve(args.destination)
+    if args.from_lat is not None and args.from_lon is not None:
+        origin = {"query": "coordenadas", "latitude": args.from_lat, "longitude": args.from_lon}
+    elif args.origin:
+        origin = resolve(args.origin)
+    else:
+        parser.error("Proporciona --from o --from-lat/--from-lon.")
+
+    if args.to_lat is not None and args.to_lon is not None:
+        destination = {"query": "coordenadas", "latitude": args.to_lat, "longitude": args.to_lon}
+    elif args.destination:
+        destination = resolve(args.destination)
+    else:
+        parser.error("Proporciona --to o --to-lat/--to-lon.")
 
     coords = f"{origin['longitude']},{origin['latitude']};{destination['longitude']},{destination['latitude']}"
     url = OSRM_URL.format(profile=PROFILES[args.mode], coords=coords)

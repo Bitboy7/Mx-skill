@@ -1,0 +1,8 @@
+{
+  "name": "gas-prices-mx",
+  "description": "Encuentra las gasolineras más baratas cerca de una ubicación en México usando la API pública de precios de la CRE (datos.gob.mx). Use when the user asks for the cheapest gas or gas station prices near them in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: gas-prices-mx\ndescription: Encuentra las gasolineras más baratas cerca de una ubicación en México usando la API pública de precios de la CRE (datos.gob.mx).\nlicense: MIT\nmetadata:\n  category: transport\n  locale: es-MX\n  phase: v1"
+}

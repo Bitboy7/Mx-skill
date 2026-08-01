@@ -1,0 +1,8 @@
+{
+  "name": "sat-rfc-lookup",
+  "description": "Analiza y valida la estructura del RFC (SAT México): persona física/moral, fecha real y desglose. La homoclave solo la verifica el SAT (algoritmo confidencial). Use when the user asks to validate a Mexican RFC.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: sat-rfc-lookup\ndescription: Analiza y valida la estructura del RFC (SAT México): persona física/moral, fecha real y desglose.\nlicense: MIT\nmetadata:\n  category: finance\n  locale: es-MX\n  phase: v1"
+}

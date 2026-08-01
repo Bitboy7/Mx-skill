@@ -1,0 +1,8 @@
+{
+  "name": "mx-news",
+  "description": "Noticias de México (portada y búsqueda por palabra clave) vía el feed público RSS de Google News. Use when the user asks for Mexican news or headlines.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-news\ndescription: Noticias de México (portada y búsqueda por palabra clave) vía el feed público RSS de Google News.\nlicense: MIT\nmetadata:\n  category: news\n  locale: es-MX\n  phase: v1"
+}

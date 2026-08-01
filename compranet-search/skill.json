@@ -1,0 +1,8 @@
+{
+  "name": "compranet-search",
+  "description": "Busca licitaciones y contrataciones públicas de México (CompraNet / Contrataciones Abiertas). Use when the user asks about public procurement, licitaciones or government tenders in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: compranet-search\ndescription: Busca licitaciones y contrataciones públicas de México (CompraNet / Contrataciones Abiertas).\nlicense: MIT\nmetadata:\n  category: business\n  locale: es-MX\n  phase: v1"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "beneficios-programas",
+  "description": "Información oficial de los Programas para el Bienestar de México (pensiones, becas, apoyos): requisitos, montos y cómo inscribirse, desde el portal oficial. Use when the user asks about Mexican social programs or welfare benefits.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: beneficios-programas\ndescription: Información oficial de los Programas para el Bienestar de México (pensiones, becas, apoyos): requisitos, montos y cómo inscribirse.\nlicense: MIT\nmetadata:\n  category: government\n  locale: es-MX\n  phase: v1"
+}

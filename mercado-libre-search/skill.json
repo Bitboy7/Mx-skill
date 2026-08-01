@@ -1,0 +1,8 @@
+{
+  "name": "mercado-libre-search",
+  "description": "Busca productos en Mercado Libre México (MLM) con la API pública documentada. Use when the user asks to search products or compare prices on Mercado Libre Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mercado-libre-search\ndescription: Busca productos en Mercado Libre México (MLM) con la API pública documentada.\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
+}

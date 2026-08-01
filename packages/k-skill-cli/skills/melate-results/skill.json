@@ -1,0 +1,8 @@
+{
+  "name": "melate-results",
+  "description": "Consulta los resultados oficiales de la Lotería Nacional de México (Melate, Revancha, Revanchita y otras bolsas) y verifica si tus números ganaron. Use when the user asks for Melate or Mexican lottery results.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: melate-results\ndescription: Consulta los resultados oficiales de la Lotería Nacional de México (Melate, Revancha, Revanchita y otras bolsas) y verifica si tus números ganaron.\nlicense: MIT\nmetadata:\n  category: utility\n  locale: es-MX\n  phase: v1"
+}

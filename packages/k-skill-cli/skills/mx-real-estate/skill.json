@@ -1,0 +1,8 @@
+{
+  "name": "mx-real-estate",
+  "description": "Busca inmuebles en renta o venta en México (Mercado Libre Inmuebles + portales como Vivanuncios/Inmuebles24). Use when the user asks to search properties or houses for rent/sale in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-real-estate\ndescription: Busca inmuebles en renta o venta en México (Mercado Libre Inmuebles + portales como Vivanuncios/Inmuebles24).\nlicense: MIT\nmetadata:\n  category: real-estate\n  locale: es-MX\n  phase: v1"
+}

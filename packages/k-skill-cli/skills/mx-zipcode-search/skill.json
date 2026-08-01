@@ -1,0 +1,8 @@
+{
+  "name": "mx-zipcode-search",
+  "description": "Consulta el código postal de México (SEPOMEX) y las colonias asociadas a un CP usando fuentes públicas. Use when the user asks for a Mexican postal code or which colonia/estado a CP belongs to.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-zipcode-search\ndescription: Consulta el código postal de México (SEPOMEX) y las colonias asociadas a un CP usando fuentes públicas.\nlicense: MIT\nmetadata:\n  category: utility\n  locale: es-MX\n  phase: v1"
+}

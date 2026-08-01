@@ -1,0 +1,8 @@
+{
+  "name": "delivery-tracking-mx",
+  "description": "Seguimiento de paquetes en México: Estafeta (endpoint público verificado). Correos de México y 99 Minutos están tras anti-bot y se documentan como límites. Use when the user asks to track a Mexican package.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: delivery-tracking-mx\ndescription: Seguimiento de paquetes en México: Estafeta (endpoint público verificado).\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
+}

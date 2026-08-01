@@ -1,0 +1,8 @@
+{
+  "name": "comision-ine",
+  "description": "Candidatas y candidatos del INE (México) por nombre y tipo de candidatura, desde los datos públicos de 'Candidatas y Candidatos, Conóceles'. Use when the user asks about candidates or electoral info in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: comision-ine\ndescription: Candidatas y candidatos del INE (México) por nombre y tipo de candidatura, desde los datos públicos de 'Candidatas y Candidatos, Conóceles'.\nlicense: MIT\nmetadata:\n  category: government\n  locale: es-MX\n  phase: v1"
+}

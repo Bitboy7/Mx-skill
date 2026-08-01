@@ -1,0 +1,8 @@
+{
+  "name": "mx-weather",
+  "description": "Clima actual y pronóstico para ciudades de México con Open-Meteo (referencia oficial: CONAGUA/SMN). Use when the user asks for the weather in a Mexican city.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-weather\ndescription: Clima actual y pronóstico para ciudades de México con Open-Meteo (referencia oficial: CONAGUA/SMN).\nlicense: MIT\nmetadata:\n  category: environment\n  locale: es-MX\n  phase: v1"
+}

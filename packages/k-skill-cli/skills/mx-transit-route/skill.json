@@ -1,0 +1,8 @@
+{
+  "name": "mx-transit-route",
+  "description": "Rutas de transporte en México (caminando/auto/bici) con OSRM público y geocodificación Open-Meteo. El Metro CDMX no tiene API pública de rutas. Use when the user asks for a route between two Mexican places.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-transit-route\ndescription: Rutas de transporte en México (caminando/auto/bici) con OSRM público y geocodificación Open-Meteo.\nlicense: MIT\nmetadata:\n  category: transport\n  locale: es-MX\n  phase: v1"
+}

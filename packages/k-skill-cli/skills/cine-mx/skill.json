@@ -1,0 +1,8 @@
+{
+  "name": "cine-mx",
+  "description": "Cartelera y funciones de cine en México: Cinemex (API pública verificada) y Cinepolis (portal oficial, sin API pública estable). Use when the user asks for movie showtimes or cinema listings in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: cine-mx\ndescription: Cartelera y funciones de cine en México: Cinemex (API pública verificada) y Cinepolis (portal oficial, sin API pública estable).\nlicense: MIT\nmetadata:\n  category: entertainment\n  locale: es-MX\n  phase: v1"
+}

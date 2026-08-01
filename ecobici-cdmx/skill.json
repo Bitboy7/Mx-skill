@@ -1,0 +1,8 @@
+{
+  "name": "ecobici-cdmx",
+  "description": "Estaciones de Ecobici CDMX con bicicletas disponibles cerca de una ubicación, desde el feed GBFS oficial. Use when the user asks for nearby Ecobici stations or bike share in Mexico City.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: ecobici-cdmx\ndescription: Estaciones de Ecobici CDMX con bicicletas disponibles cerca de una ubicación, desde el feed GBFS oficial.\nlicense: MIT\nmetadata:\n  category: transport\n  locale: es-MX\n  phase: v1"
+}

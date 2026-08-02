@@ -1,13 +1,15 @@
 """Skill: validación de RFC (sat-rfc-lookup)."""
 
 from .. import formatting, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def rfc(update, context) -> str:
     rfc_val = (context.args[0] if context.args else "").strip().upper()
     if not rfc_val:
-        return "Uso: <code>/rfc GODE561231GR8</code>"
+        ask("rfc", "Escribe el RFC que quieres validar (ej. GODE561231GR8).")
+        return ""
 
     data = await runner.run_skill("sat-rfc-lookup", ["--rfc", rfc_val])
     valid = bool(data.get("valido"))

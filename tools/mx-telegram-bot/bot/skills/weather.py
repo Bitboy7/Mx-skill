@@ -1,12 +1,17 @@
 """Skill: clima en México (mx-weather)."""
 
 from .. import config, formatting, geo, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def clima(update, context) -> str:
     place = " ".join(context.args).strip()
     coords = geo.effective(context)
+
+    if not place and not coords:
+        ask("clima", "¿Para qué ciudad quieres el clima? (o comparte tu ubicación 📍)", kind="place")
+        return ""
 
     if place:
         skill_args = ["--place", place, "--days", "3"]

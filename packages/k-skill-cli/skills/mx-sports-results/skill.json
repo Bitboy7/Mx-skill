@@ -1,0 +1,8 @@
+{
+  "name": "mx-sports-results",
+  "description": "Resultados, posiciones y equipos de la Liga MX y la Liga de Expansión (fútbol mexicano) con la API pública de ESPN. Use when the user asks for Liga MX, Mexican soccer, fútbol mexicano or Mexican football results, standings or teams.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-sports-results\ndescription: Resultados, posiciones y equipos de la Liga MX y la Liga de Expansión (fútbol mexicano) con la API pública de ESPN.\nlicense: MIT\nmetadata:\n  category: sports\n  locale: es-MX\n  phase: v1"
+}

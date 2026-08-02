@@ -3,6 +3,7 @@
 Bot de Telegram en Python que expone las **skills MX** del repositorio `k-skill` como comandos. Cada comando ejecuta el helper de la skill correspondiente (subproceso) y formatea el JSON en una respuesta legible.
 
 - ✅ Funciona **sin IA**: comandos deterministas que llaman a las skills.
+- 🕹️ **Interactivo**: menú de botones (`/menu` o `/start`) para usar los comandos sin escribirlos, y preguntas guiadas cuando un comando necesita parámetros.
 - 🤖 Capa de IA **opcional** (`/ask`) que enruta un mensaje libre a la skill correcta (OpenAI u Ollama).
 
 ## Requisitos
@@ -44,8 +45,17 @@ python -m bot.main
 | `/precio <producto>` | `mercado-libre-search` | Búsqueda en Mercado Libre |
 | `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete (Estafeta) |
+| `/futbol [equipo\|jornada\|expansion]` | `mx-sports-results` | Tabla, posición de un equipo o jornada de la Liga MX |
+| `/menu` | — | Muestra los botones de comandos |
+| `/cancel` | — | Cancela un comando pendiente de completar |
 | `/ask <mensaje>` | — | Enruta con IA a la skill correcta |
 | `/help` | — | Lista los comandos |
+
+## Modo interactivo
+
+- **Menú de botones**: con `/menu` (o `/start`) el bot muestra un teclado con los comandos; tocar un botón ejecuta el comando sin escribir nada.
+- **Parámetros guiados**: si un comando necesita un dato y no lo recibes (p. ej. `/cp` sin código, `/precio` sin producto), el bot pregunta y tu siguiente mensaje completa el comando. Con `/cancel` se aborta la pregunta.
+- **Ubicación 📍**: cuando un comando de lugar (`/clima`, `/ecobici`, `/gasolina`, `/ruta`) está esperando un dato, puedes responder enviando tu ubicación (📎 → Ubicación) y se usará como parámetro automáticamente.
 
 ## Ubicación compartida (GPS 📍)
 
@@ -79,11 +89,12 @@ Ollama local: `AI_API_KEY=ollama`, `AI_BASE_URL=http://localhost:11434/v1`, `AI_
 ```
 tools/mx-telegram-bot/
 ├── bot/
-│   ├── main.py          # construcción de la app, /start /help /ask, dispatch, 📍 ubicación
+│   ├── main.py          # construcción de la app, /start /help /ask /menu, dispatch, 📍 ubicación
 │   ├── config.py        # configuración desde .env
 │   ├── runner.py        # ejecuta los helpers como subproceso y parsea JSON
 │   ├── formatting.py    # utilidades de formato para Telegram (HTML)
 │   ├── geo.py           # recurso compartido de ubicación (aprox. y por usuario)
+│   ├── interactive.py   # menú de botones y completado guiado de parámetros
 │   ├── ai.py            # enrutador opcional con LLM (OpenAI-compatible)
 │   └── skills/          # un módulo por skill
 │       ├── registry.py  # registro central (SkillEntry)

@@ -3,13 +3,15 @@
 import re
 
 from .. import formatting, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def codigo_postal(update, context) -> str:
     cp = (context.args[0] if context.args else "").strip()
     if not re.fullmatch(r"\d{5}", cp):
-        return "Uso: <code>/cp 06600</code> (5 dígitos)."
+        ask("cp", "Escribe el código postal de 5 dígitos (ej. 06600).")
+        return ""
 
     data = await runner.run_skill("mx-zipcode-search", [cp])
     places = data.get("places") or []

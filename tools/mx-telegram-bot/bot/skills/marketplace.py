@@ -1,13 +1,15 @@
 """Skill: búsqueda en Mercado Libre México (mercado-libre-search)."""
 
 from .. import formatting, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def precio(update, context) -> str:
     query = " ".join(context.args).strip()
     if not query:
-        return "Uso: <code>/precio &lt;producto&gt;</code>  (ej. /precio audifonos bluetooth)"
+        ask("precio", "¿Qué producto quieres buscar en Mercado Libre? (ej. audífonos bluetooth)")
+        return ""
 
     data = await runner.run_skill("mercado-libre-search", ["--q", query, "--limit", "5"])
     results = data.get("results") or []

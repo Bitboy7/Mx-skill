@@ -29,6 +29,7 @@ SKILL_SCRIPTS: dict[str, Path] = {
     "mercado-libre-search": Path("mercado-libre-search/scripts/mercado_libre_search.py"),
     "mx-real-estate": Path("mx-real-estate/scripts/mx_real_estate.py"),
     "delivery-tracking-mx": Path("delivery-tracking-mx/scripts/delivery_tracking_mx.py"),
+    "mx-sports-results": Path("mx-sports-results/scripts/mx_sports.py"),
 }
 
 

@@ -1,12 +1,17 @@
 """Skill: gasolineras baratas (gas-prices-mx)."""
 
 from .. import config, formatting, geo, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def gasolina(update, context) -> str:
     place = " ".join(context.args).strip()
     coords = geo.effective(context)
+
+    if not place and not coords:
+        ask("gasolina", "¿Dónde buscas gasolina barata? (o comparte tu ubicación 📍)", kind="place")
+        return ""
 
     if place:
         skill_args = ["--place", place, "--limit", "5"]

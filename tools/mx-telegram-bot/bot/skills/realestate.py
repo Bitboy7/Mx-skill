@@ -1,6 +1,7 @@
 """Skill: inmuebles en México (mx-real-estate)."""
 
 from .. import formatting, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
@@ -11,7 +12,8 @@ async def inmuebles(update, context) -> str:
         tipo = args.pop(0)
     query = " ".join(args).strip()
     if not query:
-        return "Uso: <code>/inmuebles [renta|venta] &lt;búsqueda&gt;</code>  (ej. /inmuebles renta departamento polanco)"
+        ask("inmuebles", "¿Qué inmueble buscas? (ej. renta departamento polanco)")
+        return ""
 
     data = await runner.run_skill("mx-real-estate", ["--q", query, "--tipo", tipo, "--limit", "5"])
     results = data.get("results") or []

@@ -3,13 +3,15 @@
 import re
 
 from .. import formatting, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def envio(update, context) -> str:
     guia = (context.args[0] if context.args else "").strip()
     if not re.fullmatch(r"\d{22}", guia):
-        return "Uso: <code>/envio &lt;guía de 22 dígitos&gt;</code>  (Estafeta)"
+        ask("envio", "Escribe la guía de Estafeta (22 dígitos).")
+        return ""
 
     data = await runner.run_skill("delivery-tracking-mx", ["--carrier", "estafeta", "--guia", guia])
     lines = [formatting.bullet("Mensajería", data.get("carrier") or "Estafeta")]

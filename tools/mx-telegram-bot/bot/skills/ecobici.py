@@ -1,12 +1,17 @@
 """Skill: Ecobici CDMX (ecobici-cdmx)."""
 
 from .. import config, formatting, geo, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 
 async def ecobici(update, context) -> str:
     place = " ".join(context.args).strip()
     coords = geo.effective(context)
+
+    if not place and not coords:
+        ask("ecobici", "¿En qué colonia buscas Ecobici? (o comparte tu ubicación 📍)", kind="place")
+        return ""
 
     if place:
         skill_args = ["--place", place, "--limit", "5"]

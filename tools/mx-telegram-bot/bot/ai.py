@@ -26,8 +26,8 @@ def _build_catalog() -> str:
 SYSTEM_PROMPT = (
     "Eres un enrutador de un bot de Telegram con skills de información sobre México. "
     "Dado el mensaje del usuario y el catálogo de skills, responde EXCLUSIVAMENTE con JSON:\n"
-    '{"skill": "<skill_id>", "args": ["--flag", "valor", ...]}\n'
-    'Si ninguna skill aplica, responde: {"skill": "chat", "text": "<respuesta breve en español>"}\n'
+    '{{"skill": "<skill_id>", "args": ["--flag", "valor", ...]}}\n'
+    'Si ninguna skill aplica, responde: {{"skill": "chat", "text": "<respuesta breve en español>"}}\n'
     'El campo "args" son los flags de línea de comandos del helper (p. ej. --place, --q, --limit); '
     "usa solo flags que la skill acepte según su uso, y no inventes valores. "
     "No añadas texto fuera del JSON.\n\n"

@@ -1,6 +1,7 @@
 """Skill: rutas de transporte (mx-transit-route)."""
 
 from .. import config, formatting, geo, runner
+from ..interactive import ask
 from .registry import SkillEntry, register
 
 SEPARATORS = (" a ", " hasta ", " to ", " hacia ")
@@ -37,7 +38,13 @@ async def ruta(update, context) -> str:
                     return _format_route(data, "tu ubicación", dest)
 
     if not text:
-        return "Uso: <code>/ruta &lt;origen&gt; a &lt;destino&gt;</code>  (o comparte 📍 y usa /ruta a &lt;destino&gt;)"
+        ask(
+            "ruta",
+            "¿A dónde quieres ir?\n"
+            "Escribe el destino, o 'origen a destino'. Si compartes tu ubicación 📍 se usa como origen.",
+            kind="route",
+        )
+        return ""
 
     origin_dest = _split_route(text)
     if not origin_dest:

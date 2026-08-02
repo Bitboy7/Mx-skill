@@ -11,7 +11,7 @@ import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, PicklePersistence, filters
 
-from . import ai, config, formatting, geo, runner
+from . import ai, config, formatting, geo, interactive, runner
 from .skills import list_skills
 from .skills.registry import SkillEntry
 
@@ -31,8 +31,12 @@ async def _dispatch(update: Update, context: ContextTypes.DEFAULT_TYPE, entry: S
     if not _allowed(user.id):
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
+    interactive.clear_pending(context)
     try:
         text = await entry.handler(update, context)
+    except interactive.AskInput as exc:
+        await interactive.store_and_prompt(update, context, exc)
+        return
     except runner.SkillError as exc:
         text = f"⚠️ {exc}"
     except Exception:  # noqa: BLE001
@@ -51,12 +55,27 @@ def _make_handler(entry: SkillEntry):
 
 
 async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
     await update.effective_message.reply_text(
-        "¡Hola! Soy el bot de skills MX 🇲🇽\nUsa /help para ver los comandos."
+        "¡Hola! Soy el bot de skills MX 🇲🇽\n"
+        "Toca un botón para usar un comando o escribe /help para ver todos.",
+        reply_markup=interactive.menu_keyboard(),
     )
 
 
+async def _menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
+    await update.effective_message.reply_text(
+        "Comandos disponibles 👇", reply_markup=interactive.menu_keyboard()
+    )
+
+
+async def _cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.effective_message.reply_text(await interactive.cancel(update, context))
+
+
 async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
     lines = []
     for entry in sorted(list_skills().values(), key=lambda e: e.command):
         # usage puede contener <placeholder>; escapar para parse_mode="HTML"
@@ -65,12 +84,18 @@ async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             f"   <i>{formatting.esc(entry.usage)}</i>"
         )
     lines.append("/ask &lt;mensaje&gt; — enruta con IA a la skill correcta (requiere AI_API_KEY)")
+    lines.append("/menu — muestra los botones de comandos")
+    lines.append("/cancel — cancela un comando en espera de datos")
     await update.effective_message.reply_text(
-        "\n".join(lines), parse_mode="HTML", disable_web_page_preview=True
+        "\n".join(lines),
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+        reply_markup=interactive.menu_keyboard(),
     )
 
 
 async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
     query = " ".join(context.args).strip()
     if not query:
         await update.effective_message.reply_text("Uso: <code>/ask &lt;mensaje&gt;</code>", parse_mode="HTML")
@@ -85,7 +110,11 @@ async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     if routed.get("skill") == "chat":
-        await update.effective_message.reply_text(routed.get("text", "…"))
+        from . import formatting
+
+        await update.effective_message.reply_text(
+            formatting.esc(routed.get("text", "…")), parse_mode="HTML"
+        )
         return
 
     skill_id = routed.get("skill")
@@ -104,11 +133,46 @@ async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.effective_message.reply_text(f"⚠️ {exc}")
 
 
+async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not _allowed(update.effective_user.id):
+        await update.effective_message.reply_text("Este bot es de uso privado.")
+        return
+    try:
+        text = await interactive.resume(
+            update, context, text=update.effective_message.text.strip()
+        )
+    except interactive.AskInput as exc:
+        await interactive.store_and_prompt(update, context, exc)
+        return
+    except runner.SkillError as exc:
+        text = f"⚠️ {exc}"
+    except Exception:  # noqa: BLE001
+        logger.exception("error completando comando pendiente")
+        text = "Ocurrió un error inesperado. Intenta de nuevo."
+    if text is None:
+        await update.effective_message.reply_text(
+            "No entiendo. Toca un botón del menú (usa /menu) o escribe /help "
+            "para ver los comandos."
+        )
+        return
+    await update.effective_message.reply_text(
+        text, parse_mode="HTML", disable_web_page_preview=True
+    )
+
+
 async def _on_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not _allowed(update.effective_user.id):
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
     loc = update.effective_message.location
+    result = await interactive.resume(
+        update, context, location=(loc.latitude, loc.longitude)
+    )
+    if result is not None:
+        await update.effective_message.reply_text(
+            result, parse_mode="HTML", disable_web_page_preview=True
+        )
+        return
     snapshot = geo.save(context, loc.latitude, loc.longitude)
     await update.effective_message.reply_text(
         "📍 Ubicación guardada (aproximada):\n"
@@ -150,7 +214,10 @@ def build_app() -> Application:
     app.add_handler(MessageHandler(filters.LOCATION, _on_location))
     app.add_handler(CommandHandler("start", _start))
     app.add_handler(CommandHandler("help", _help))
+    app.add_handler(CommandHandler("menu", _menu))
+    app.add_handler(CommandHandler("cancel", _cancel))
     app.add_handler(CommandHandler("ask", _ask))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, _on_text))
     return app
 
 

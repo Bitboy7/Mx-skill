@@ -14,6 +14,7 @@ from . import (  # noqa: F401,E402  (el orden importa para registrar sin duplica
     realestate,
     rfc,
     shipping,
+    sports,
     transit,
     weather,
     zipcode,

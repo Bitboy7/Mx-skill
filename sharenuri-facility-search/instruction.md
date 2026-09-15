@@ -31,7 +31,7 @@
 실측 근거 (2026-09-12):
 
 - `searchWrd=회의실` → 총 5,828건, 첫 페이지 10건 반환
-- `searchWrd=회의실&ctrd=11&sigg=11680&free_yn=Y` (서울 강남구 무료) → 총 8건
+- `searchWrd=회의실&ctrd=11&sigg=680&free_yn=Y` (서울 강남구 무료, 화면 `gunguCd`) → 총 3건
 - 존재하지 않는 검색어 → `총 0건` + "목록이 없는" 마크업
 - 상세 `rsrc_no=FF20O3200420` → 200, 기본정보 표(자원분류~이용요금) 확인
 
@@ -65,7 +65,7 @@
 - `search` 하위명령:
   - `--query`, `-q`: 검색어 (필수)
   - `--sido`: 시·도 이름 (예: `서울특별시`) 또는 `--ctrd`: 시·도 코드 (예: `11`)
-  - `--sigg`: 시군구 코드 (`sigungu` 하위명령으로 조회, 예: 강남구 `11680`)
+  - `--sigg`: 시군구 코드 (`sigungu` 하위명령의 `gunguCd`, 예: 강남구 `680`; 법정동 5자리 `11680`도 허용)
   - `--major-code`: 자원 대분류 코드 (`categories` 하위명령으로 조회, 예: 시설·공간(대관) `010000`)
   - `--free`: 무료 자원만, `--reservable`: 인터넷 예약 가능 자원만
   - `--page`: 시작 페이지 (기본 1), `--limit`: 최대 건수 (기본 10, 최대 50)
@@ -92,7 +92,7 @@ npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_sea
   sigungu --ctrd 11
 
 npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_search.py -- \
-  --json search --query 회의실 --sido 서울특별시 --sigg 11680 --free
+  --json search --query 회의실 --sido 서울특별시 --sigg 680 --free
 ```
 
 ### 3. 상세정보와 예약 경로 확인

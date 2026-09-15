@@ -93,6 +93,17 @@ def _bootstrap(opener) -> None:
     _request(opener, BOOTSTRAP_URL)
 
 
+def normalize_sigg(sigg: str | None) -> str | None:
+    # 공유누리 통합검색 select[name=sigg] 값은 gunguCd (강남구 680).
+    # 법정동 시군구코드 5자리(11680)가 들어오면 뒤 3자리를 쓴다.
+    if not sigg:
+        return None
+    value = str(sigg).strip()
+    if len(value) == 5 and value.isdigit():
+        return value[-3:]
+    return value
+
+
 def detail_path_for(rsrc_dcd: str) -> str:
     dcd = rsrc_dcd[7:10]
     path = DETAIL_PATH_BY_DCD.get(dcd)
@@ -175,8 +186,9 @@ def cmd_search(opener, args) -> dict:
         }
         if sido_code:
             payload["ctrd"] = sido_code
-        if args.sigg:
-            payload["sigg"] = args.sigg
+        sigg = normalize_sigg(args.sigg)
+        if sigg:
+            payload["sigg"] = sigg
         if args.major_code:
             payload["mj_rsrc_cls_cd"] = args.major_code
         if args.free:
@@ -193,7 +205,7 @@ def cmd_search(opener, args) -> dict:
         "query": {
             "searchWrd": args.query,
             "ctrd": sido_code,
-            "sigg": args.sigg,
+            "sigg": normalize_sigg(args.sigg),
             "mj_rsrc_cls_cd": args.major_code,
             "free_yn": "Y" if args.free else None,
             "intnet_rsrv_psbl_yn": "Y" if args.reservable else None,
@@ -226,7 +238,11 @@ def cmd_sigungu(opener, args) -> dict:
     return {
         "ctrd": args.ctrd,
         "sigungu": [
-            {"sigunguCd": row.get("sigunguCd"), "name": row.get("gunguNm")}
+            {
+                "sigunguCd": row.get("sigunguCd"),
+                "gunguCd": row.get("gunguCd"),
+                "name": row.get("gunguNm"),
+            }
             for row in rows
             if row.get("openAt") == "Y"
         ],
@@ -268,7 +284,7 @@ def _print(result: dict, as_json: bool) -> None:
             print(f"  {label}: {value}")
     elif "sigungu" in result:
         for row in result["sigungu"]:
-            print(f"{row['sigunguCd']}\t{row['name']}")
+            print(f"{row['gunguCd']}\t{row['name']}\t{row['sigunguCd']}")
     elif "major_categories" in result:
         for row in result["major_categories"]:
             print(f"{row['code']}\t{row['name']}")

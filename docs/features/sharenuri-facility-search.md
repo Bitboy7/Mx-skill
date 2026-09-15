@@ -23,11 +23,11 @@ API 키와 로그인이 모두 필요 없다. 예약 신청, 로그인, 결제, 
 npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_search.py -- \
   search --query 회의실 --limit 10
 
-# 서울 강남구 무료 회의실만 (시군구 코드는 sigungu 하위명령으로 조회)
+# 서울 강남구 무료 회의실만 (시군구 코드는 sigungu 하위명령의 gunguCd, 법정동 5자리도 허용)
 npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_search.py -- \
   sigungu --ctrd 11
 npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_search.py -- \
-  search --query 회의실 --sido 서울특별시 --sigg 11680 --free --json
+  --json search --query 회의실 --sido 서울특별시 --sigg 680 --free
 
 # 상세정보 (검색 결과의 rsrc_no / rsrc_dcd 사용)
 npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_search.py -- \
@@ -40,7 +40,7 @@ npx -y @nomadamas/k-skill@0 exec sharenuri-facility-search scripts/sharenuri_sea
 
 ## 데이터 출처와 한계
 
-- 출처는 공유누리 공개 통합검색이다 (2026-09-12 실측: `회의실` 5,828건, 서울 강남구 무료 회의실 8건).
+- 출처는 공유누리 공개 통합검색이다 (2026-09-15 실측: `회의실` 5,831건, 서울 강남구 무료 회의실 3건, `sigg`는 화면 `gunguCd`).
 - 공유누리에 등록된 자원만 검색된다. 지자체 자체 예약 시스템(예: 서울 공공서비스예약)에만 있는 시설은 나오지 않을 수 있다.
 - 실시간 시간대별 예약 현황은 다루지 않는다. 예약 가능 여부의 최종 확인은 상세 페이지의 공식 예약 화면에서 한다.
 - 같은 데이터의 키 기반 공식 API(공유누리 OPEN API, 공공데이터포털 15077523·15077518·15076186)도 존재한다. 대량 수집이 필요하면 인증키를 신청해 공식 API를 쓰는 편이 맞다.

@@ -124,6 +124,34 @@ class CommandFlowTest(unittest.TestCase):
             with self.assertRaises(helper.SharenuriError):
                 helper.cmd_search(object(), self._args(sido="없는도"))
 
+    def test_search_normalizes_five_digit_sigungu_cd(self):
+        fragment = SEARCH_FRAGMENT_HTML
+        seen = {}
+
+        def fake_request(opener, url, data=None, referer=None):
+            seen.update(data or {})
+            return fragment
+
+        with mock.patch.object(helper, "_bootstrap", lambda opener: None), mock.patch.object(
+            helper, "_request", side_effect=fake_request
+        ):
+            helper.cmd_search(object(), self._args(sido="서울특별시", sigg="11680"))
+        self.assertEqual(seen["sigg"], "680")
+
+    def test_search_keeps_three_digit_gungu_cd(self):
+        fragment = SEARCH_FRAGMENT_HTML
+        seen = {}
+
+        def fake_request(opener, url, data=None, referer=None):
+            seen.update(data or {})
+            return fragment
+
+        with mock.patch.object(helper, "_bootstrap", lambda opener: None), mock.patch.object(
+            helper, "_request", side_effect=fake_request
+        ):
+            helper.cmd_search(object(), self._args(sido="서울특별시", sigg="680"))
+        self.assertEqual(seen["sigg"], "680")
+
     def test_sigungu_parses_open_only(self):
         body = json.dumps(
             {
@@ -137,7 +165,10 @@ class CommandFlowTest(unittest.TestCase):
 
         with mock.patch.object(helper, "_request", return_value=body):
             result = helper.cmd_sigungu(object(), argparse.Namespace(ctrd="11"))
-        self.assertEqual(result["sigungu"], [{"sigunguCd": "11680", "name": "강남구"}])
+        self.assertEqual(
+            result["sigungu"],
+            [{"sigunguCd": "11680", "gunguCd": "680", "name": "강남구"}],
+        )
 
     def test_categories_parse(self):
         body = json.dumps(

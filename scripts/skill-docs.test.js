@@ -592,6 +592,14 @@ test("repository publishes Korean contribution guidance for external contributor
   assert.match(contributing, /`main`에 머지된 뒤에만 프로덕션에 반영/);
 });
 
+test("skill authoring docs document the CLI update one-liner", () => {
+  const token = /npx -y @nomadamas\/k-skill@0 update/;
+
+  for (const relative of ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", path.join("docs", "adding-a-skill.md")]) {
+    assert.match(read(relative), token, `${relative} must document the CLI update command`);
+  }
+});
+
 test("README links to the contribution guide", () => {
   const readme = read("README.md");
 

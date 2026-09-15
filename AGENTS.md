@@ -31,6 +31,7 @@ These rules are repo-specific and apply to everything under this directory.
 ## Development skill install rules
 
 - When testing or developing skills from this repository, install or sync the current skill directories into the user's home-directory global skill locations first.
+- To refresh the published CLI and every coding-agent skill install (including Vercel Agent Skills at `~/.agents/skills`), run `npx -y @nomadamas/k-skill@0 update`. Use `update --check` to report versions without installing.
 - Use `~/.claude/skills/<skill-name>` for Claude Code and `~/.agents/skills/<skill-name>` for agents-compatible home installs.
 - Respect existing home-directory indirection such as symlinks when syncing `~/.agents/skills`.
 - Do **not** create repo-local `.claude` or `.agents` directories for skill installation unless the user explicitly asks for a repository-local test fixture.
@@ -41,7 +42,8 @@ These rules are repo-specific and apply to everything under this directory.
 - Top-level `SKILL.md` files are generated CLI adapter stubs. Do not edit them directly; run `npm run generate:skill-stubs` after changing `skill.json`.
 - Run `npm run sync:cli-skills` after changing `skill.json`, `instruction.md`, `scripts/`, or `references/` so `packages/k-skill-cli/skills/` stays aligned.
 - Instruction commands must execute bundled helpers through `npx -y @nomadamas/k-skill@0 exec <skill> scripts/<file> -- ...` and read references through `... read <skill> references/<file>`. Run `npm run migrate:cli-assets` to normalize legacy relative paths.
-- Shared runtime behavior belongs in `packages/k-skill-cli/templates/*.md`, selected by profiles such as `proxy`, `vault`, `browser`, `action:booking`, `action:commerce`, `legal`, `operations`, `local`, and `lookup`.
+- Agents must version-check the CLI before using those tools with `npx -y @nomadamas/k-skill@0 update`. That command also refreshes all coding-agent skill installs, including Vercel Agent Skills (`~/.agents/skills`), via `npx --yes skills add NomaDamas/k-skill --all -g`.
+- Shared runtime behavior belongs in `packages/k-skill-cli/templates/*.md`, selected by profiles such as `proxy`, `vault`, `browser`, `action:booking`, `action:commerce`, `legal`, `operations`, `local`, and `lookup`. The CLI update one-liner lives in `templates/core.md` and generated `SKILL.md` stubs; do not copy it into `instruction.md`.
 - Do not duplicate shared runtime blocks in `instruction.md`. Keep only the skill's site-dependent navigation, commands, inputs/outputs, action details, and failure modes there.
 - Runtime detection is capability-based. Credential action mode requires both `DOLSHOI_ACTION_BROKER_URL` and a usable `vault-run`; CloakBrowser mode is detected independently through the bundled browser tool or `CLOAKBROWSER_PEEK_TOKEN`.
 - In Dolshoi credential mode, never ask for or reveal plaintext credentials. Use provisioned `vault-run` capabilities and call `request_vault_credential` when the required credential is missing.

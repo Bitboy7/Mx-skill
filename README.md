@@ -22,6 +22,9 @@ npx --yes skills add NomaDamas/k-skill --all -g
 
 # 특정 스킬만 설치
 npx --yes skills add NomaDamas/k-skill --skill railway-timetable -g
+
+# CLI가 뒤처져 있으면 갱신하고, Vercel Agent Skills를 포함한 모든 코딩 에이전트 스킬을 함께 갱신
+npx -y @nomadamas/k-skill@0 update
 ```
 
 기본 설치에는 Node.js 18 이상과 `npx`만 필요합니다. KTX 공식 시간표 helper를 실행할 때는 Python 3.11 이상과 `uv`가 추가로 필요합니다. Claude Code 사용자는 아래 마켓플레이스로도 설치할 수 있습니다. 자세한 방법은 [설치 방법](docs/install.md)을 참고하세요.

@@ -293,6 +293,11 @@ test("every top-level skill is a generated CLI stub", () => {
       new RegExp(`npx -y @nomadamas/k-skill@0 instruct ${escapeRegex(skillName)}`),
       `${skillName} stub must invoke the pinned-major CLI`,
     );
+    assert.match(
+      skill,
+      /npx -y @nomadamas\/k-skill@0 update/,
+      `${skillName} stub must expose the CLI update one-liner`,
+    );
     assert.doesNotMatch(
       skill,
       /^## Runtime contract \(required\)$/m,

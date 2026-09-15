@@ -26,6 +26,12 @@ The CLI detects the current runtime (Dolshoi vault/CloakBrowser vs generic) and 
 npx -y @nomadamas/k-skill@0 files sharenuri-facility-search
 ```
 
+Keep the CLI and every coding-agent skill install current (including Vercel Agent Skills) with:
+
+```bash
+npx -y @nomadamas/k-skill@0 update
+```
+
 If `npx` is unavailable, install Node.js 18+ or follow https://github.com/NomaDamas/k-skill#readme, or read the source instructions at https://github.com/NomaDamas/k-skill/blob/main/sharenuri-facility-search/instruction.md.
 
 ## Legal disclaimer (required)

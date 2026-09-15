@@ -64,6 +64,11 @@ test("every bundled skill declares only known profiles and assembles in both mod
       assert.match(output, /^# .+ — assembled instructions/, `${skillName} ${runtime.mode} header`);
       assert.match(output, /## Runtime rules/);
       assert.match(output, /call `clarify`/, `${skillName} must keep the clarify boundary in ${runtime.mode}`);
+      assert.match(
+        output,
+        /npx -y @nomadamas\/k-skill@0 update/,
+        `${skillName} must tell agents to version-check the CLI in ${runtime.mode}`,
+      );
       assert.doesNotMatch(output, /<!-- mode:/, `${skillName} ${runtime.mode} must not leak mode markers`);
     }
   }

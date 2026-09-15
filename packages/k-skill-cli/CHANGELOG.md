@@ -1,5 +1,11 @@
 # @nomadamas/k-skill
 
+## 0.9.0
+
+### Minor Changes
+
+- 9798c2f: Add `version` / `--version` so the CLI reports its installed package version.
+
 ## 0.8.0
 
 ### Minor Changes

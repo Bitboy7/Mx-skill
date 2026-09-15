@@ -150,7 +150,7 @@ test("all bundled assets are exposed through exec/read/path instructions", () =>
   }
 
   // Source skill directories own their bundled assets.
-  assert.equal(assetSkills, 90);
+  assert.equal(assetSkills, 91);
 });
 
 test("asset resolution rejects traversal and reads bundled references", () => {
@@ -268,4 +268,21 @@ test("CLI binary handles instruct, files, list, and errors", () => {
   assert.equal(help.status, 0);
   assert.match(help.stdout, /exec <skill> <script>/);
   assert.match(help.stdout, /read <skill> <file>/);
+  assert.match(help.stdout, /version/);
+});
+
+test("CLI prints the installed package version", () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8"));
+  const run = (args) =>
+    childProcess.spawnSync("node", [binPath, ...args], {
+      encoding: "utf8",
+      env: { ...process.env, DOLSHOI_ACTION_BROKER_URL: "", CLOAKBROWSER_PEEK_TOKEN: "" },
+    });
+
+  for (const args of [["version"], ["--version"], ["-V"], ["-v"]]) {
+    const result = run(args);
+    assert.equal(result.status, 0, args.join(" "));
+    assert.equal(result.stdout, `${pkg.version}\n`);
+    assert.equal(result.stderr, "");
+  }
 });

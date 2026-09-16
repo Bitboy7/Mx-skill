@@ -151,6 +151,9 @@ npx -y @nomadamas/k-skill@0 instruct <skill-name>
 # 설치된 CLI 버전
 npx -y @nomadamas/k-skill@0 version
 
+# CLI가 뒤처져 있으면 갱신하고, Vercel Agent Skills를 포함한 모든 코딩 에이전트 스킬을 함께 갱신
+npx -y @nomadamas/k-skill@0 update
+
 # 배포된 스킬 목록
 npx -y @nomadamas/k-skill@0 list
 
@@ -190,7 +193,7 @@ k-skill read kosis-stats references/kosis-openapi-guide.md
 ```
 
 전역 설치는 필수가 아니다. 전역 설치를 사용하면 최신 호환 버전으로
-갱신할 때 다음 명령을 다시 실행한다.
+갱신할 때 `npx -y @nomadamas/k-skill@0 update` 또는 다음 명령을 다시 실행한다.
 
 ```bash
 npm install -g @nomadamas/k-skill@0

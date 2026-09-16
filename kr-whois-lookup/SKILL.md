@@ -26,6 +26,12 @@ The CLI detects the current runtime (Dolshoi vault/CloakBrowser vs generic) and 
 npx -y @nomadamas/k-skill@0 files kr-whois-lookup
 ```
 
+Keep the CLI and every coding-agent skill install current (including Vercel Agent Skills) with:
+
+```bash
+npx -y @nomadamas/k-skill@0 update
+```
+
 If `npx` is unavailable, install Node.js 18+ or follow https://github.com/NomaDamas/k-skill#readme, or read the source instructions at https://github.com/NomaDamas/k-skill/blob/main/kr-whois-lookup/instruction.md.
 
 ## Hard rules even without the CLI

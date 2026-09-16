@@ -49,11 +49,15 @@ plugin으로 설치한 스킬은 `/k-skill:<스킬 이름>`으로 호출한다.
 조립과 bundled `scripts/`, `references/` 접근은 `@nomadamas/k-skill` CLI가 담당한다.
 
 기본 경로는 `npx`이며 CLI를 별도로 설치할 필요는 없다.
+에이전트는 CLI 도구를 쓰기 전에 한 줄로 최신 여부를 맞춘다.
 
 ```bash
+npx -y @nomadamas/k-skill@0 update
 npx -y @nomadamas/k-skill@0 instruct k-skill-setup
 npx -y @nomadamas/k-skill@0 list
 ```
+
+`update`는 CLI가 뒤처져 있으면 갱신하고, `npx --yes skills add NomaDamas/k-skill --all -g` 로 Vercel Agent Skills(`~/.agents/skills`)를 포함한 모든 코딩 에이전트 전역 스킬을 함께 갱신한다. 설치만 확인하려면 `npx -y @nomadamas/k-skill@0 update --check` 를 쓴다.
 
 반복 사용으로 전역 명령이 필요할 때만 선택적으로 설치한다.
 
@@ -151,13 +155,15 @@ npx -y @nomadamas/k-skill@0 instruct k-skill-setup
 
 ## 5. Optional update checks
 
-주기적인 업데이트 확인을 원하는지 먼저 묻는다. 원하지 않으면 건너뛴다.
+에이전트가 스킬을 쓸 때의 기본 갱신 명령은 `npx -y @nomadamas/k-skill@0 update`다.
+주기적인 예약 확인을 원하는지 먼저 묻는다. 원하지 않으면 건너뛴다.
 
 정책:
 
-- 기본 명령은 설치를 변경하지 않는 `npx --yes skills check`다.
-- `check`에 `-g` 같은 추가 옵션을 붙이지 않는다.
-- 자동 업데이트는 사용자가 명시적으로 요청한 경우에만 별도로 논의한다.
+- 에이전트 기본 명령은 `npx -y @nomadamas/k-skill@0 update`다. CLI와 모든 코딩 에이전트 스킬 설치를 함께 갱신한다.
+- 설치를 변경하지 않고 확인만 하려면 `npx -y @nomadamas/k-skill@0 update --check` 또는 `npx --yes skills check`를 쓴다.
+- `skills check`에 `-g` 같은 추가 옵션을 붙이지 않는다.
+- 예약된 자동 업데이트는 사용자가 명시적으로 요청한 경우에만 별도로 논의한다.
 - 사용자가 승인한 확인 작업만 생성한다.
 - 별도 요약 작업, helper script, `claude -p` 같은 AI/CLI 작업을 함께 만들지 않는다.
 

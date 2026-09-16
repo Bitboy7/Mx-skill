@@ -293,6 +293,11 @@ test("every top-level skill is a generated CLI stub", () => {
       new RegExp(`npx -y @nomadamas/k-skill@0 instruct ${escapeRegex(skillName)}`),
       `${skillName} stub must invoke the pinned-major CLI`,
     );
+    assert.match(
+      skill,
+      /npx -y @nomadamas\/k-skill@0 update/,
+      `${skillName} stub must expose the CLI update one-liner`,
+    );
     assert.doesNotMatch(
       skill,
       /^## Runtime contract \(required\)$/m,
@@ -585,6 +590,14 @@ test("repository publishes Korean contribution guidance for external contributor
   assert.match(contributing, /systemd/);
   assert.match(contributing, /gpu01 app directory의 `\.env`/);
   assert.match(contributing, /`main`에 머지된 뒤에만 프로덕션에 반영/);
+});
+
+test("skill authoring docs document the CLI update one-liner", () => {
+  const token = /npx -y @nomadamas\/k-skill@0 update/;
+
+  for (const relative of ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", path.join("docs", "adding-a-skill.md")]) {
+    assert.match(read(relative), token, `${relative} must document the CLI update command`);
+  }
 });
 
 test("README links to the contribution guide", () => {

@@ -8,6 +8,7 @@ Runtime mode: dolshoi (CloakBrowser available)
 - When the user asks for an action and the official surface supports it lawfully, continue beyond lookup through reversible preparation and execution. Do not declare completion at a result list, deep link, or handoff when the action can still be carried out.
 - Immediately before an irreversible external side effect such as payment, message/email delivery, final submission, cancellation, account mutation, or public posting, call `clarify` with the exact target, amount/payload, and effect. Execute only after approval; do not ask again for already-approved reversible steps.
 - Preserve hard boundaries for law, required physical presence, CAPTCHA, identity proofing, electronic signatures, and unsupported official surfaces. In those cases, complete the furthest lawful supported step and open or prepare the exact next official step for the user.
+- Before using k-skill CLI tools, run `npx -y @nomadamas/k-skill@0 update` so the CLI and all coding-agent skill installs (including `~/.agents/skills`) are current.
 - When purchase or cart is requested, continue past search results: open the official product page, verify live price/seller/option/stock, use vault-backed login, and complete reversible cart or checkout preparation.
 - Immediately before the final order or payment, call `clarify` with merchant, item/options, quantity, delivery summary, and total amount. After approval, submit and verify the order number and payment status.
 

@@ -10,6 +10,7 @@ const {
 } = require("../src/assemble");
 const { runBundledScript } = require("../src/execute");
 const { detectRuntime } = require("../src/detect");
+const { formatUpdate, runUpdate, UPDATE_INVOCATION } = require("../src/update");
 const { version } = require("../package.json");
 
 function usage() {
@@ -25,10 +26,14 @@ function usage() {
     "  files <skill>      Print local paths of the skill's bundled helper files",
     "  list               List bundled skills",
     "  version            Print the installed CLI version",
+    "  update             Update this CLI if outdated and refresh all coding-agent skills",
     "",
     "Options:",
     "  -h, --help         Show this help",
     "  -v, -V, --version  Print the installed CLI version",
+    "  --check            With update: report versions without installing",
+    "",
+    `Agent one-liner: ${UPDATE_INVOCATION}`,
     "",
     "Runtime detection: DOLSHOI_ACTION_BROKER_URL enables Dolshoi mode;",
     "CLOAKBROWSER_PEEK_TOKEN marks CloakBrowser availability.",
@@ -46,6 +51,13 @@ function main() {
   if (command === "version" || command === "--version" || command === "-V" || command === "-v") {
     console.log(version);
     return 0;
+  }
+
+  if (command === "update") {
+    const checkOnly = process.argv.slice(3).includes("--check");
+    const result = runUpdate({ checkOnly });
+    process.stdout.write(formatUpdate(result));
+    return result.ok ? 0 : 1;
   }
 
   if (command === "list") {

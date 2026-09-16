@@ -38,6 +38,23 @@ function compareVersions(left, right) {
   return left.patch - right.patch;
 }
 
+function parseMaxVersion(raw) {
+  const text = String(raw ?? "");
+  const pattern = /(\d+)\.(\d+)\.(\d+)/g;
+  let best = null;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    const candidate = {
+      major: Number(match[1]),
+      minor: Number(match[2]),
+      patch: Number(match[3]),
+      raw: `${match[1]}.${match[2]}.${match[3]}`,
+    };
+    if (!best || compareVersions(candidate, best) > 0) best = candidate;
+  }
+  return best;
+}
+
 function spawnOutput(result) {
   return `${result?.stdout || ""}\n${result?.stderr || ""}`;
 }
@@ -57,7 +74,7 @@ function lookupLatest(spawn) {
     error.code = "EREGISTRY";
     throw error;
   }
-  const parsed = parseVersion(result.stdout);
+  const parsed = parseMaxVersion(result.stdout);
   if (!parsed) {
     const error = new Error(`could not parse registry version from ${JSON.stringify(result.stdout)}`);
     error.code = "EREGISTRY";

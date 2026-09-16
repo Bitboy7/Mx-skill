@@ -76,6 +76,37 @@ test("runUpdate updates an outdated global CLI then refreshes all-agent skills",
   assert.deepEqual(spawn.calls[2].args, ["--yes", "skills", "add", SKILLS_SOURCE, "--all", "-g"]);
 });
 
+test("runUpdate picks the newest version from multi-line npm view range output", () => {
+  // Real `npm view <pkg>@0 version` prints one line per matching version, ascending:
+  //   @nomadamas/k-skill@0.1.0 '0.1.0'
+  //   ...
+  //   @nomadamas/k-skill@0.9.0 '0.9.0'
+  const versions = ["0.1.0", "0.2.0", "0.8.0", "0.9.0"];
+  const registryOutput = versions.map((v) => `${PACKAGE_NAME}@${v} '${v}'`).join("\n") + "\n";
+  const spawn = mockSpawn((call) => {
+    if (call.command === "npm" && call.args[0] === "view") {
+      return { stdout: registryOutput };
+    }
+    if (call.command === "npm" && call.args[0] === "install") {
+      return { stdout: "updated\n" };
+    }
+    if (call.command === "npx") {
+      return { stdout: "skills refreshed\n" };
+    }
+    return { status: 1, stderr: `unexpected spawn ${call.command}` };
+  });
+
+  const result = runUpdate({
+    currentVersion: "0.8.0",
+    argv1: GLOBAL_BIN,
+    spawn,
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.cli.status, "updated");
+  assert.equal(result.cli.latest, "0.9.0");
+});
+
 test("runUpdate keeps already-latest CLI as a no-op and still refreshes skills", () => {
   const spawn = mockSpawn(npmView("0.8.0"));
 

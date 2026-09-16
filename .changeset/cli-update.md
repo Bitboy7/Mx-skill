@@ -1,5 +1,5 @@
 ---
-"@nomadamas/k-skill": minor
+"@nomadamas/k-skill": patch
 ---
 
 Add `update` so agents can refresh an outdated CLI and all coding-agent skill installs, including Vercel Agent Skills.

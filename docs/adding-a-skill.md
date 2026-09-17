@@ -176,6 +176,14 @@ reference는 상대 Markdown 링크 대신 CLI로 읽는다.
 npx -y @nomadamas/k-skill@0 read my-new-skill references/guide.md
 ```
 
+에이전트는 CLI 도구를 쓰기 전에 한 줄로 최신 여부를 맞춘다. 이 명령은 CLI가 뒤처져 있으면 갱신하고, Vercel Agent Skills(`~/.agents/skills`)를 포함한 모든 코딩 에이전트 전역 스킬도 함께 갱신한다.
+
+```bash
+npx -y @nomadamas/k-skill@0 update
+```
+
+공통 한 줄은 `packages/k-skill-cli/templates/core.md`와 생성된 `SKILL.md` stub이 넣는다. 새 스킬의 `instruction.md`에 복제하지 않는다.
+
 `npm run sync:cli-skills`가 helper와 reference를 통합 CLI 패키지에 동봉한다.
 루트 `scripts/`에서 `bundle[]`로 끌어오지 않는다. helper는 스킬 디렉터리의 `scripts/`에 둔다.
 
@@ -272,7 +280,7 @@ npm run ci
 새 스킬을 PR 올리기 전에 확인한다.
 
 - [ ] `my-new-skill/skill.json`과 `instruction.md` 작성 완료
-- [ ] `npm run generate:skill-stubs`와 `npm run sync:cli-skills` 실행 (`SKILL.md`는 생성물이므로 직접 수정하지 않음)
+- [ ] `npm run generate:skill-stubs`와 `npm run sync:cli-skills` 실행 (`SKILL.md`는 생성물이므로 직접 수정하지 않음). 생성된 stub에 `npx -y @nomadamas/k-skill@0 update` 한 줄이 들어 있는지 확인한다.
 - [ ] frontmatter `name`이 디렉토리 이름과 일치
 - [ ] `npm run ci` 통과 (`./scripts/validate-skills.sh` 포함). Python/Node helper 테스트는 `scripts/test_*.py`, `<skill>/tests/`, `<skill>/scripts/test_*.py`에 두면 루트 `npm test`가 glob으로 수집한다. `package.json` 테스트 목록을 손으로 고치지 않는다.
 - [ ] npm 패키지라면 `packages/`에 구현체와 테스트 추가

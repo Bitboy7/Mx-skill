@@ -1,5 +1,11 @@
 # @nomadamas/k-skill
 
+## 0.9.1
+
+### Patch Changes
+
+- b1d9915: Add `update` so agents can refresh an outdated CLI and all coding-agent skill installs, including Vercel Agent Skills.
+
 ## 0.9.0
 
 ### Minor Changes

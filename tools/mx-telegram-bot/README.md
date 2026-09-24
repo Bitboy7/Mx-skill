@@ -71,6 +71,8 @@ python -m bot.main
 | `/feriado [año\|proximos]` | `mx-holiday-calendar` | Días feriados oficiales de México |
 | `/bienestar [tema\|todos]` | `beneficios-programas` | Programas para el Bienestar: requisitos y enlaces |
 | `/licitaciones <palabra>` | `compranet-search` | Licitaciones y contrataciones públicas (Compras MX) |
+| `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo en México/LATAM (tecnología) |
+| `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras |
 | `/menu` | — | Muestra los botones de comandos |
 | `/cancel` | — | Cancela un comando pendiente de completar |
 | `/ask <mensaje>` | — | Enruta con IA a la skill correcta |

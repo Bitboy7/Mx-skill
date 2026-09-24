@@ -32,6 +32,8 @@ plugin y los tests de skills).
 | `/banos <lugar>` | `mx-restroom-nearby` | Baños públicos cerca | OpenStreetMap / Overpass |
 | `/licitaciones <palabra>` | `compranet-search` | Licitaciones y contrataciones públicas | Compras MX vía LicitIA |
 | `/bienestar [tema\|todos]` | `beneficios-programas` | Programas para el Bienestar | Portal oficial |
+| `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo (tecnología/LATAM) | API pública Vacantes Digitales |
+| `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras | Catálogo curado + enlaces oficiales |
 
 ## Ubicación compartida 📍
 
@@ -60,3 +62,5 @@ Estas skills usan la ubicación que compartas con el bot (📎 → Ubicación):
 - [mx-restroom-nearby](../docs/features/mx-restroom-nearby.md)
 - [compranet-search](../docs/features/compranet-search.md)
 - [beneficios-programas](../docs/features/beneficios-programas.md)
+- [mx-job-search](../docs/features/mx-job-search.md)
+- [mx-university-search](../docs/features/mx-university-search.md)

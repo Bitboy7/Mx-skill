@@ -11,6 +11,7 @@ from . import (  # noqa: F401,E402  (el orden importa para registrar sin duplica
     gas,
     holidays,
     ine,
+    jobs,
     licitaciones,
     lottery,
     marketplace,
@@ -21,6 +22,7 @@ from . import (  # noqa: F401,E402  (el orden importa para registrar sin duplica
     shipping,
     sports,
     transit,
+    universities,
     weather,
     zipcode,
 )

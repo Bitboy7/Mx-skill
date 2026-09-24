@@ -35,6 +35,8 @@ SKILL_SCRIPTS: dict[str, Path] = {
     "mx-restroom-nearby": Path("mx-restroom-nearby/scripts/mx_restroom_nearby.py"),
     "compranet-search": Path("compranet-search/scripts/compranet_search.py"),
     "beneficios-programas": Path("beneficios-programas/scripts/beneficios_programas.py"),
+    "mx-job-search": Path("mx-job-search/scripts/mx_job_search.py"),
+    "mx-university-search": Path("mx-university-search/scripts/mx_university_search.py"),
 }
 
 

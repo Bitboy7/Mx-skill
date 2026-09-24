@@ -1,0 +1,8 @@
+{
+  "name": "mx-job-search",
+  "description": "Busca vacantes de empleo en México/LATAM (tecnología e IA) con la API pública Vacantes Digitales, sin API key. Use when the user asks for job openings or vacancies in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-job-search\ndescription: Busca vacantes de empleo en México/LATAM (tecnología e IA) con la API pública Vacantes Digitales, sin API key.\nlicense: MIT\nmetadata:\n  category: jobs\n  locale: es-MX\n  phase: v1"
+}

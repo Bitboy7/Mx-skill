@@ -1,0 +1,8 @@
+{
+  "name": "mx-university-search",
+  "description": "Busca universidades de México (públicas y privadas) y sus carreras, con enlaces oficiales. Use when the user asks about Mexican universities or degree programs.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-university-search\ndescription: Busca universidades de México (públicas y privadas) y sus carreras, con enlaces oficiales.\nlicense: MIT\nmetadata:\n  category: education\n  locale: es-MX\n  phase: v1"
+}

@@ -100,6 +100,32 @@ PAYLOADS = {
             }
         ],
     },
+    "mx-job-search": {
+        "source": "Vacantes Digitales (API pública, sin API key)",
+        "official_links": {"vacantes_digitales": "https://vacantesdigitales.com/vacantes"},
+        "results": [
+            {
+                "puesto": "Desarrollador C++",
+                "empresa": "Phinder",
+                "modalidad": "Presencial",
+                "tipo_empleo": "Tiempo completo",
+                "ubicacion": "Ciudad de México",
+                "url": "https://www.linkedin.com/feed/update/urn:li:activity:1",
+            }
+        ],
+    },
+    "mx-university-search": {
+        "results": [
+            {
+                "nombre": "Universidad Nacional Autónoma de México (UNAM)",
+                "tipo": "pública",
+                "ciudad": "Ciudad de México",
+                "estado": "Ciudad de México",
+                "carreras": ["Medicina", "Derecho", "Ingeniería en Computación"],
+                "sitio": "https://www.unam.mx",
+            }
+        ],
+    },
 }
 
 
@@ -122,6 +148,8 @@ class NewSkillHandlerTests(unittest.IsolatedAsyncioTestCase):
             ("banos", "mx-restroom-nearby"),
             ("licitaciones", "compranet-search"),
             ("bienestar", "beneficios-programas"),
+            ("empleo", "mx-job-search"),
+            ("universidades", "mx-university-search"),
         ]:
             self.assertIn(command, registered)
             self.assertEqual(registered[command].skill_id, skill_id)
@@ -239,6 +267,50 @@ class NewSkillHandlerTests(unittest.IsolatedAsyncioTestCase):
     async def test_bienestar_asks_for_topic(self):
         with self.assertRaises(interactive.AskInput) as ctx:
             await skills.list_skills()["bienestar"].handler(None, FakeContext([]))
+        self.assertEqual(ctx.exception.kind, "text")
+
+    async def test_empleo_formats_vacancies(self):
+        fake, calls = fake_runner()
+        with mock.patch.object(runner, "run_skill", new=fake):
+            text = await skills.list_skills()["empleo"].handler(None, FakeContext(["python"]))
+
+        self.assertIn("Vacantes para 'python'", text)
+        self.assertIn("Desarrollador C++", text)
+        self.assertIn("Phinder", text)
+        self.assertIn("linkedin.com", text)
+        skill_id, args = calls[0]
+        self.assertEqual(skill_id, "mx-job-search")
+        self.assertEqual(args[:2], ["--query", "python"])
+        self.assertIn("--json", args)
+
+    async def test_empleo_asks_for_query(self):
+        with self.assertRaises(interactive.AskInput) as ctx:
+            await skills.list_skills()["empleo"].handler(None, FakeContext([]))
+        self.assertEqual(ctx.exception.kind, "text")
+
+    async def test_universidades_formats_results(self):
+        fake, calls = fake_runner()
+        with mock.patch.object(runner, "run_skill", new=fake):
+            text = await skills.list_skills()["universidades"].handler(None, FakeContext(["medicina"]))
+
+        self.assertIn("Universidades para 'medicina'", text)
+        self.assertIn("UNAM", text)
+        self.assertIn("Medicina", text)
+        self.assertIn("https://www.unam.mx", text)
+        skill_id, args = calls[0]
+        self.assertEqual(skill_id, "mx-university-search")
+        self.assertEqual(args[:2], ["--query", "medicina"])
+
+    async def test_universidades_todos_uses_list_mode(self):
+        fake, calls = fake_runner()
+        with mock.patch.object(runner, "run_skill", new=fake):
+            await skills.list_skills()["universidades"].handler(None, FakeContext(["todos"]))
+
+        self.assertEqual(calls[0][1], ["--list", "--json"])
+
+    async def test_universidades_asks_for_query(self):
+        with self.assertRaises(interactive.AskInput) as ctx:
+            await skills.list_skills()["universidades"].handler(None, FakeContext([]))
         self.assertEqual(ctx.exception.kind, "text")
 
 

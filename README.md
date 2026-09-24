@@ -7,8 +7,8 @@ expone como comandos. Es una adaptación al público mexicano de las skills de
 [`NomaDamas/k-skill`](https://github.com/NomaDamas/k-skill), con fuentes
 oficiales/públicas de México y sin API key.
 
-- 20 skills MX (clima, aire, noticias, Lotería, CP, RFC, gasolina, trámites,
-  transporte, comercio, gobierno…) en español.
+- 22 skills MX (clima, aire, noticias, Lotería, CP, RFC, gasolina, trámites,
+  transporte, comercio, gobierno, empleo, universidades…) en español.
 - Bot de Telegram listo para usar (`/clima`, `/melate`, `/gasolina`, `/rfc`…).
 - Compatibles con Claude Code, Codex, OpenCode, OpenClaw/ClawHub y otros agentes.
 - Índice rápido de las skills MX: [`Skills/README.md`](Skills/README.md).
@@ -65,6 +65,8 @@ columna "Comando" es el comando del bot de Telegram.
 | `/banos <lugar>` | [`mx-restroom-nearby`](mx-restroom-nearby/) | Baños públicos cerca | OpenStreetMap / Overpass |
 | `/licitaciones <palabra>` | [`compranet-search`](compranet-search/) | Licitaciones y contrataciones públicas | Compras MX vía LicitIA |
 | `/bienestar [tema\|todos]` | [`beneficios-programas`](beneficios-programas/) | Programas para el Bienestar | Portal oficial |
+| `/empleo <puesto\|skill>` | [`mx-job-search`](mx-job-search/) | Vacantes de empleo (tecnología/LATAM) | API pública Vacantes Digitales |
+| `/universidades <carrera\|universidad>` | [`mx-university-search`](mx-university-search/) | Universidades de México y sus carreras | Catálogo curado + enlaces oficiales |
 
 Guías por skill: [`Skills/README.md`](Skills/README.md).
 
@@ -100,6 +102,8 @@ El bot funciona **sin IA** (comandos deterministas) y además es **interactivo**
 | `/banos <lugar>` | `mx-restroom-nearby` | Baños públicos cerca (OpenStreetMap) |
 | `/licitaciones <palabra>` | `compranet-search` | Licitaciones y contrataciones públicas |
 | `/bienestar [tema\|todos]` | `beneficios-programas` | Programas para el Bienestar |
+| `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo en México/LATAM (tecnología) |
+| `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras |
 | `/menu`, `/help`, `/cancel`, `/ask <mensaje>` | — | Menú, ayuda, cancelar y enrutado con IA |
 
 ## Estructura del repositorio

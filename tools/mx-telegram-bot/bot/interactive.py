@@ -56,6 +56,7 @@ def menu_keyboard() -> ReplyKeyboardMarkup:
         ["/ruta", "/banos"],
         ["/feriado", "/candidatos"],
         ["/bienestar", "/licitaciones"],
+        ["/empleo", "/universidades"],
         ["/help"],
     ]
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)

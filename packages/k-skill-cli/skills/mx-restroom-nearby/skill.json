@@ -1,0 +1,8 @@
+{
+  "name": "mx-restroom-nearby",
+  "description": "Baños públicos/abiertos cerca de una ubicación en México con OpenStreetMap (Overpass API, sin API key) y geocodificación Open-Meteo. Use when the user asks for nearby public restrooms in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-restroom-nearby\ndescription: Baños públicos/abiertos cerca de una ubicación en México con OpenStreetMap (Overpass API, sin API key) y geocodificación Open-Meteo.\nlicense: MIT\nmetadata:\n  category: environment\n  locale: es-MX\n  phase: v1"
+}

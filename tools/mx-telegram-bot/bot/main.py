@@ -177,8 +177,8 @@ async def _on_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.effective_message.reply_text(
         "📍 Ubicación guardada (aproximada):\n"
         f"<code>{geo.describe(snapshot)}</code>\n\n"
-        "Ahora puedes usar <b>/gasolina</b>, <b>/ecobici</b>, <b>/clima</b> o "
-        "<b>/ruta a &lt;destino&gt;</b> sin escribir el lugar.",
+        "Ahora puedes usar <b>/gasolina</b>, <b>/ecobici</b>, <b>/clima</b>, "
+        "<b>/aire</b>, <b>/banos</b> o <b>/ruta a &lt;destino&gt;</b> sin escribir el lugar.",
         parse_mode="HTML",
     )
 

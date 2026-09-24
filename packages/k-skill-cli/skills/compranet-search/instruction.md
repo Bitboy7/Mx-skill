@@ -2,45 +2,62 @@
 
 ## What this skill does
 
-Ayuda a buscar **licitaciones y contrataciones públicas de México** en las plataformas oficiales: **CompraNet** y **Contrataciones Abiertas** de la Secretaría de la Función Pública (UPCP). Es una skill de navegación de superficies oficiales: no existe una API pública estable y abierta para todo el catálogo, y los portales aplican controles anti-bot.
+Busca **licitaciones y contrataciones públicas de México**. CompraNet ahora es **Compras MX**, y sus datos se publican en el portal oficial. No existe una API pública oficial estable para todo el catálogo, así que el helper usa la API pública de sólo lectura **LicitIA Abierto** (`api.licitia.com.mx`), que normaliza lo que publica Compras MX, y recurre a los **enlaces oficiales** cuando la API no responde.
 
 ## When to use
 
-- "¿Qué licitaciones abiertas hay para software en CDMX?"
-- "Busca concursos de obra pública del gobierno federal"
-- "¿Cómo busco una contratación específica en CompraNet?"
+- "¿Qué licitaciones hay para software?"
+- "Busca contrataciones de obra pública de 2026"
+- "¿Cómo busco una contratación en Compras MX?"
 
 ## When not to use
 
-- Para participar en una licitación (requiere alta en CompraNet y, en su caso, e.firma): el usuario completa ese trámite manualmente.
-- Para datos históricos masivos: usar los datasets abiertos de Contrataciones Abiertas (`contratacionesabiertas.hacienda.gob.mx`).
+- Para participar en una licitación (requiere alta en Compras MX y, en su caso, e.firma): el usuario completa ese trámite manualmente.
+- Para datos históricos masivos: usar los conjuntos de Datos Abiertos de Compras MX.
 
 ## Prerequisites
 
-- Internet y un navegador para los pasos que exigen interacción manual.
-- No requiere API key.
+- Internet y `python3` (solo biblioteca estándar).
+- Sin API key ni cuenta.
+
+## Inputs
+
+- `query` (posicional) o `--query`: palabra clave.
+- `--limit`: número de resultados (1–50, por defecto 5).
+- `--year`: año de ejercicio.
+- `--tipo`: tipo de procedimiento.
+- `--estatus`: estatus (p. ej. `VIGENTE`, `ADJUDICADO`).
+- `--json`: salida JSON.
 
 ## Workflow
 
-1. Consultar el buscador público de **CompraNet**:
-   - `https://compranet.hacienda.gob.mx/` → módulo de búsqueda de procedimientos.
-2. Consultar **Contrataciones Abiertas** (datos abiertos y buscador):
-   - `https://contratacionesabiertas.hacienda.gob.mx/`
-3. Aplicar filtros: palabra clave, entidad federativa, tipo de procedimiento (licitación pública, invitación restringida, adjudicación directa), fecha.
-4. Resumir las contrataciones encontradas: número de expediente, objeto, dependencia, monto, estado.
+```bash
+npx -y @nomadamas/k-skill@0 exec compranet-search scripts/compranet_search.py -- "software" --limit 5
+npx -y @nomadamas/k-skill@0 exec compranet-search scripts/compranet_search.py -- "obra publica" --year 2026 --json
+npx -y @nomadamas/k-skill@0 exec compranet-search scripts/compranet_search.py -- "medicamentos" --estatus VIGENTE
+```
+
+La API consultada es `GET https://api.licitia.com.mx/api/open/v1/licitaciones?q=<query>&limit=<n>` (parámetros opcionales `anio`, `tipo`, `estatus`). Cada resultado incluye `url_oficial`, que apunta al detalle en Compras MX.
+
+## Output
+
+- `source`: atribución (`LicitIA Abierto`, CC BY 4.0, sobre datos de Compras MX).
+- `results[]`: `numero`, `nombre`, `dependencia`, `tipo`, `estatus`, `anio`, `fecha_publicacion`, `adjudicaciones`, `url_oficial`, `url_fuente`.
+- `official_links`: buscador de Compras MX, Datos Abiertos y archivo histórico.
+- `notice`: aparece si la API pública falló (se muestran solo los enlaces oficiales).
 
 ## Done when
 
-- Se identificaron las contrataciones relevantes con su expediente y enlace oficial.
-- Se explicó que la participación requiere el trámite oficial en CompraNet.
+- Se mostraron las contrataciones relevantes con su número y enlace oficial.
+- Se dejó claro que la participación es un trámite oficial del usuario.
 
 ## Failure modes
 
-- Los portales pueden estar fuera de servicio o bloquear peticiones automatizadas (challenges anti-bot): en ese caso se da el enlace oficial y el usuario completa la búsqueda manualmente.
-- Sin resultados para los filtros elegidos.
-- Los datos de Contrataciones Abiertas pueden tener desfase respecto a CompraNet.
+- API pública caída o con timeout: el helper degrada a los enlaces oficiales (`notice`).
+- Sin resultados para la palabra clave.
+- Los datos normalizados pueden tener desfase respecto a Compras MX; el enlace oficial es la fuente primaria.
 
 ## Notes
 
 - Skill de solo consulta/guía. No inscribe ni presenta ofertas.
-- No se recopilan datos de empresas ni se guardan búsquedas.
+- Atribución obligatoria: datos de LicitIA Abierto (CC BY 4.0) sobre Compras MX.

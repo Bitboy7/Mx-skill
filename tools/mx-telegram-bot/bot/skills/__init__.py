@@ -3,15 +3,20 @@
 from .registry import SkillEntry, get_all  # noqa: F401
 
 from . import (  # noqa: F401,E402  (el orden importa para registrar sin duplicados)
+    airquality,
+    bienestar,
     canasta,
     cinema,
     ecobici,
     gas,
+    holidays,
     ine,
+    licitaciones,
     lottery,
     marketplace,
     news,
     realestate,
+    restroom,
     rfc,
     shipping,
     sports,

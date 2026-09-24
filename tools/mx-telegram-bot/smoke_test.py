@@ -49,6 +49,13 @@ async def main():
         ("envio", ["0000000000000000000000"]),
         ("futbol", []),
         ("futbol", ["america"]),
+        ("aire", ["Ciudad de Mexico"]),
+        ("feriado", ["2026"]),
+        ("feriado", ["proximos"]),
+        ("banos", ["Roma Norte"]),
+        ("bienestar", ["pension"]),
+        ("bienestar", ["todos"]),
+        ("licitaciones", ["software"]),
     ]
     for name, args in cases:
         try:
@@ -71,6 +78,8 @@ async def main():
         ("ecobici", []),
         ("gasolina", []),
         ("ruta", ["a", "Zocalo"]),
+        ("aire", []),
+        ("banos", []),
     ]:
         try:
             await run_handler(name, args, user_data=ctx.user_data)
@@ -79,7 +88,7 @@ async def main():
 
     # --- Flujo interactivo: comandos sin parámetros piden el dato ---
     print("\n=== Interactivo: comandos sin parámetros piden el dato ===")
-    for name in ["cp", "rfc", "precio", "inmuebles", "clima", "ruta"]:
+    for name in ["cp", "rfc", "precio", "inmuebles", "clima", "ruta", "aire", "banos", "bienestar", "licitaciones"]:
         entry = skills.list_skills().get(name)
         try:
             await entry.handler(None, FakeContext([], {}))

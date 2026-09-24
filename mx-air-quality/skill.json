@@ -1,0 +1,8 @@
+{
+  "name": "mx-air-quality",
+  "description": "Calidad del aire en México (PM10, PM2.5 e índice US AQI) por ciudad o coordenadas con Open-Meteo Air Quality (referencia oficial: SEDEMA / SEMARNAT). Use when the user asks about air quality or pollution in a Mexican city.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-air-quality\ndescription: Calidad del aire en México (PM10, PM2.5 e índice US AQI) por ciudad o coordenadas con Open-Meteo Air Quality (referencia oficial: SEDEMA / SEMARNAT).\nlicense: MIT\nmetadata:\n  category: environment\n  locale: es-MX\n  phase: v1"
+}

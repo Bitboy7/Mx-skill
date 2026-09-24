@@ -1,0 +1,8 @@
+{
+  "name": "mx-holiday-calendar",
+  "description": "Días feriados oficiales de México (año actual o próximos) desde el calendario público Nager.Date, sin API key. Use when the user asks about Mexican public holidays, días feriados or next long weekend.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-holiday-calendar\ndescription: Días feriados oficiales de México (año actual o próximos) desde el calendario público Nager.Date, sin API key.\nlicense: MIT\nmetadata:\n  category: government\n  locale: es-MX\n  phase: v1"
+}

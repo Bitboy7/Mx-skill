@@ -30,6 +30,11 @@ SKILL_SCRIPTS: dict[str, Path] = {
     "mx-real-estate": Path("mx-real-estate/scripts/mx_real_estate.py"),
     "delivery-tracking-mx": Path("delivery-tracking-mx/scripts/delivery_tracking_mx.py"),
     "mx-sports-results": Path("mx-sports-results/scripts/mx_sports.py"),
+    "mx-air-quality": Path("mx-air-quality/scripts/mx_air_quality.py"),
+    "mx-holiday-calendar": Path("mx-holiday-calendar/scripts/mx_holidays.py"),
+    "mx-restroom-nearby": Path("mx-restroom-nearby/scripts/mx_restroom_nearby.py"),
+    "compranet-search": Path("compranet-search/scripts/compranet_search.py"),
+    "beneficios-programas": Path("beneficios-programas/scripts/beneficios_programas.py"),
 }
 
 

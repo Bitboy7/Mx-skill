@@ -46,14 +46,17 @@ def clear_pending(context) -> bool:
 def menu_keyboard() -> ReplyKeyboardMarkup:
     """Botones con los comandos principales (sin necesidad de escribirlos)."""
     rows = [
-        ["/clima", "/futbol"],
-        ["/ecobici", "/gasolina"],
-        ["/melate", "/noticias"],
-        ["/cine", "/canasta"],
-        ["/cp", "/rfc"],
-        ["/precio", "/inmuebles"],
-        ["/envio", "/ruta"],
-        ["/candidatos", "/help"],
+        ["/clima", "/aire"],
+        ["/futbol", "/ecobici"],
+        ["/gasolina", "/melate"],
+        ["/noticias", "/cine"],
+        ["/canasta", "/cp"],
+        ["/rfc", "/precio"],
+        ["/inmuebles", "/envio"],
+        ["/ruta", "/banos"],
+        ["/feriado", "/candidatos"],
+        ["/bienestar", "/licitaciones"],
+        ["/help"],
     ]
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 

@@ -2,7 +2,7 @@
 
 ## What this skill does
 
-Brinda **información oficial de los Programas para el Bienestar** del Gobierno de México: pensión para adultos mayores, pensión para personas con discapacidad, becas Benito Juárez, Jóvenes Construyendo el Futuro, Sembrando Vida, entre otros — requisitos, montos y cómo inscribirse, desde el **portal oficial**.
+Brinda **información oficial de los Programas para el Bienestar** del Gobierno de México: pensión para adultos mayores, pensión para personas con discapacidad, becas Benito Juárez, Jóvenes Construyendo el Futuro, Sembrando Vida, entre otros. El helper mantiene un catálogo curado (perfil, requisitos, tipo de apoyo y enlace oficial) para responder rápido, y el portal oficial es la fuente de verdad.
 
 ## When to use
 
@@ -17,29 +17,43 @@ Brinda **información oficial de los Programas para el Bienestar** del Gobierno 
 
 ## Prerequisites
 
-- Internet y navegador para enlaces oficiales.
+- Internet y `python3` (solo biblioteca estándar).
 - No requiere API key.
+
+## Inputs
+
+- `query` (posicional): palabra clave (pensión, beca, jóvenes, campo...).
+- `--categoria`: filtrar por categoría (`adultos mayores`, `mujeres`, `infancias`, `jóvenes`, `personas con discapacidad`, `campo y pesca`, `vivienda`).
+- `--list`: listar todos los programas.
+- `--json`: salida JSON.
 
 ## Workflow
 
-1. Consultar el portal oficial:
-   - `https://programasparaelbienestar.gob.mx/`
-2. Identificar el programa según el perfil del usuario (edad, discapacidad, estudiante, joven, campesino).
-3. Resumir: monto, periodicidad, requisitos, documentos y pasos de registro.
-4. Dar los enlaces oficiales de inscripción (p. ej. registro en línea del programa correspondiente).
+```bash
+npx -y @nomadamas/k-skill@0 exec beneficios-programas scripts/beneficios_programas.py -- "pensión"
+npx -y @nomadamas/k-skill@0 exec beneficios-programas scripts/beneficios_programas.py -- "beca" --categoria jóvenes --json
+npx -y @nomadamas/k-skill@0 exec beneficios-programas scripts/beneficios_programas.py -- --list
+```
+
+## Output
+
+- `source` / `portal`: portal oficial `programasparaelbienestar.gob.mx`.
+- `results[]`: `nombre`, `categoria`, `perfil`, `requisitos`, `apoyo`, `monto`, `convocatoria`, `enlace`.
+- `note`: recordatorio de que montos y requisitos cambian con las reglas de operación vigentes.
 
 ## Done when
 
 - Se explicó el programa correcto para el perfil del usuario.
-- Se dieron requisitos, montos y el canal oficial de registro.
-- Se dejó claro que el trámite de inscripción lo realiza el usuario en la vía oficial.
+- Se dieron requisitos, tipo de apoyo y el canal oficial (enlace).
+- Se dejó claro que el trámite lo realiza el usuario en la vía oficial.
 
 ## Failure modes
 
-- El portal oficial cambia requisitos/montos (revisar la versión vigente).
-- El usuario pide montos "seguros" que dependen de la regla de operación vigente: remitir a la publicación oficial.
+- Sin coincidencias para la palabra clave: probar otro término o `--list`.
+- El catálogo puede no incluir un programa nuevo o local (estatal/municipal): remitir al portal oficial.
+- Los montos son referenciales y cambian con las reglas de operación vigentes.
 
 ## Notes
 
-- Skill informativo/de consulta. No solicita ni tramita apoyos.
-- No se guardan datos personales.
+- Skill informativo/de consulta. No solicita ni tramita apoyos ni guarda datos personales.
+- El registro es gratuito y sin intermediarios; el portal oficial es la fuente de verdad.

@@ -7,25 +7,14 @@ Se ejecuta con el Python del bot (o con cualquier Python 3.10+):
 import asyncio
 import pathlib
 import sys
-import types
 import unittest
 from unittest import mock
 
 # La instalación de python-telegram-bot no es necesaria para probar los
-# handlers: basta con un stub mínimo de `telegram.ReplyKeyboardMarkup`.
-if "telegram" not in sys.modules:
-    try:
-        import telegram  # noqa: F401
-    except ImportError:
-        stub = types.ModuleType("telegram")
+# handlers: se usa un stub mínimo de `telegram`.
+import _telegram_stub
 
-        class ReplyKeyboardMarkup:  # noqa: D401
-            def __init__(self, *args, **kwargs):
-                self.args = args
-                self.kwargs = kwargs
-
-        stub.ReplyKeyboardMarkup = ReplyKeyboardMarkup
-        sys.modules["telegram"] = stub
+_telegram_stub.install()
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -126,6 +115,34 @@ PAYLOADS = {
             }
         ],
     },
+    "mx-product-search": {
+        "source": "Liverpool Mexico (datos publicos del buscador)",
+        "results": [
+            {
+                "titulo": "Audífonos True Wireless Galaxy Buds",
+                "marca": "SAMSUNG",
+                "precio_mxn": 799,
+                "precio_original_mxn": 999,
+                "descuento_pct": 20,
+                "rating": 4.5,
+                "link": "https://www.liverpool.com.mx/tienda/pdp/audifonos/1182610185",
+            }
+        ],
+    },
+    "mx-real-estate": {
+        "source": "Inmuebles24 (datos publicos de los anuncios)",
+        "results": [
+            {
+                "titulo": "Departamento en Polanco",
+                "precio": "$9,000,000 MXN",
+                "dormitorios": "3",
+                "banos": "2",
+                "superficie_m2": "264 m²",
+                "ubicacion": "Polanco, Miguel Hidalgo, Ciudad de México",
+                "link": "https://www.inmuebles24.com/propiedades/clasificado/abc-1.html",
+            }
+        ],
+    },
 }
 
 
@@ -150,6 +167,8 @@ class NewSkillHandlerTests(unittest.IsolatedAsyncioTestCase):
             ("bienestar", "beneficios-programas"),
             ("empleo", "mx-job-search"),
             ("universidades", "mx-university-search"),
+            ("precio", "mx-product-search"),
+            ("inmuebles", "mx-real-estate"),
         ]:
             self.assertIn(command, registered)
             self.assertEqual(registered[command].skill_id, skill_id)
@@ -311,6 +330,42 @@ class NewSkillHandlerTests(unittest.IsolatedAsyncioTestCase):
     async def test_universidades_asks_for_query(self):
         with self.assertRaises(interactive.AskInput) as ctx:
             await skills.list_skills()["universidades"].handler(None, FakeContext([]))
+        self.assertEqual(ctx.exception.kind, "text")
+
+    async def test_precio_formats_products(self):
+        fake, calls = fake_runner()
+        with mock.patch.object(runner, "run_skill", new=fake):
+            text = await skills.list_skills()["precio"].handler(None, FakeContext(["audifonos"]))
+
+        self.assertIn("Productos: audifonos", text)
+        self.assertIn("Galaxy Buds", text)
+        self.assertIn("799", text)
+        self.assertIn("liverpool.com.mx", text)
+        skill_id, args = calls[0]
+        self.assertEqual(skill_id, "mx-product-search")
+        self.assertEqual(args[:2], ["--q", "audifonos"])
+
+    async def test_precio_asks_for_query(self):
+        with self.assertRaises(interactive.AskInput) as ctx:
+            await skills.list_skills()["precio"].handler(None, FakeContext([]))
+        self.assertEqual(ctx.exception.kind, "text")
+
+    async def test_inmuebles_formats_results(self):
+        fake, calls = fake_runner()
+        with mock.patch.object(runner, "run_skill", new=fake):
+            text = await skills.list_skills()["inmuebles"].handler(None, FakeContext(["renta", "polanco"]))
+
+        self.assertIn("Inmuebles (renta): polanco", text)
+        self.assertIn("Departamento en Polanco", text)
+        self.assertIn("3 rec.", text)
+        skill_id, args = calls[0]
+        self.assertEqual(skill_id, "mx-real-estate")
+        self.assertEqual(args[:2], ["--q", "polanco"])
+        self.assertIn("--tipo", args)
+
+    async def test_inmuebles_asks_for_query(self):
+        with self.assertRaises(interactive.AskInput) as ctx:
+            await skills.list_skills()["inmuebles"].handler(None, FakeContext([]))
         self.assertEqual(ctx.exception.kind, "text")
 
 

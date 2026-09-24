@@ -6,20 +6,21 @@ Configura TELEGRAM_BOT_TOKEN en .env (ver .env.example).
 
 from __future__ import annotations
 
-import logging
+import re
+import time
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, PicklePersistence, filters
 
-from . import ai, config, formatting, geo, interactive, runner
+from . import ai, config, errors, formatting, geo, interactive, logging_setup, runner
 from .skills import list_skills
 from .skills.registry import SkillEntry
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger("mx-bot")
+logger = logging_setup.configure_logging()
+
+
+def _summarize_args(args: list[str]) -> str:
+    return " ".join(str(a)[:40] for a in args[:10])
 
 
 def _allowed(user_id: int) -> bool:
@@ -28,20 +29,29 @@ def _allowed(user_id: int) -> bool:
 
 async def _dispatch(update: Update, context: ContextTypes.DEFAULT_TYPE, entry: SkillEntry) -> None:
     user = update.effective_user
-    if not _allowed(user.id):
+    user_id = getattr(user, "id", None)
+    if not _allowed(user_id):
+        logger.warning("acceso denegado user=%s cmd=/%s", user_id, entry.command)
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
     interactive.clear_pending(context)
+    args = list(getattr(context, "args", []) or [])
+    started = time.perf_counter()
+    logger.info("cmd=/%s user=%s skill=%s args=[%s]", entry.command, user_id, entry.skill_id, _summarize_args(args))
     try:
         text = await entry.handler(update, context)
     except interactive.AskInput as exc:
+        logger.info("cmd=/%s pide dato al usuario: %s", entry.command, exc.prompt)
         await interactive.store_and_prompt(update, context, exc)
         return
     except runner.SkillError as exc:
+        logger.warning("cmd=/%s skill=%s falló: %s", entry.command, entry.skill_id, exc)
         text = f"⚠️ {exc}"
     except Exception:  # noqa: BLE001
-        logger.exception("error ejecutando /%s", entry.command)
+        logger.exception("cmd=/%s skill=%s error inesperado", entry.command, entry.skill_id)
         text = "Ocurrió un error inesperado. Intenta de nuevo."
+    elapsed = (time.perf_counter() - started) * 1000
+    logger.info("cmd=/%s respondido en %.0f ms (%d chars)", entry.command, elapsed, len(text or ""))
     await update.effective_message.reply_text(
         text, parse_mode="HTML", disable_web_page_preview=True
     )
@@ -57,8 +67,11 @@ def _make_handler(entry: SkillEntry):
 async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     interactive.clear_pending(context)
     await update.effective_message.reply_text(
-        "¡Hola! Soy el bot de skills MX 🇲🇽\n"
-        "Toca un botón para usar un comando o escribe /help para ver todos.",
+        "🇲🇽 <b>Bot de skills MX</b>\n\n"
+        "Toca un comando del menú 👇 o escribe /help para ver todo.\n\n"
+        "💡 <b>Truco:</b> comparte tu 📍 ubicación y úsala en "
+        "/clima, /aire, /gasolina, /ecobici y /banos.",
+        parse_mode="HTML",
         reply_markup=interactive.menu_keyboard(),
     )
 
@@ -66,7 +79,9 @@ async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def _menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     interactive.clear_pending(context)
     await update.effective_message.reply_text(
-        "Comandos disponibles 👇", reply_markup=interactive.menu_keyboard()
+        "🧭 <b>Menú de comandos</b>\nToca uno para usarlo 👇",
+        parse_mode="HTML",
+        reply_markup=interactive.menu_keyboard(),
     )
 
 
@@ -80,14 +95,15 @@ async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     for entry in sorted(list_skills().values(), key=lambda e: e.command):
         # usage puede contener <placeholder>; escapar para parse_mode="HTML"
         lines.append(
-            f"/{entry.command} — {formatting.esc(entry.description)}\n"
+            f"• <b>/{entry.command}</b> — {formatting.esc(entry.description)}\n"
             f"   <i>{formatting.esc(entry.usage)}</i>"
         )
-    lines.append("/ask &lt;mensaje&gt; — enruta con IA a la skill correcta (requiere AI_API_KEY)")
-    lines.append("/menu — muestra los botones de comandos")
-    lines.append("/cancel — cancela un comando en espera de datos")
+    lines.append("")
+    lines.append("🤖 <b>/ask</b> &lt;mensaje&gt; — enruta con IA (requiere AI_API_KEY)")
+    lines.append("🧭 <b>/menu</b> — muestra los botones de comandos")
+    lines.append("🚫 <b>/cancel</b> — cancela un comando en espera de datos")
     await update.effective_message.reply_text(
-        "\n".join(lines),
+        "📖 <b>Comandos disponibles</b>\n\n" + "\n".join(lines),
         parse_mode="HTML",
         disable_web_page_preview=True,
         reply_markup=interactive.menu_keyboard(),
@@ -134,22 +150,46 @@ async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not _allowed(update.effective_user.id):
+    user_id = getattr(update.effective_user, "id", None)
+    if not _allowed(user_id):
+        logger.warning("acceso denegado user=%s (texto)", user_id)
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
+    incoming = update.effective_message.text.strip()
+    logger.info("texto user=%s: %r", user_id, incoming[:80])
+
+    # Botones del menú con emoji: "🌤 /clima" -> ejecuta /clima.
+    match = re.match(r"^\W*\s*/([A-Za-z_]+)(?:\s+(.*))?$", incoming)
+    if match:
+        command = match.group(1)
+        rest = (match.group(2) or "").strip()
+        handlers = {"start": _start, "help": _help, "menu": _menu, "cancel": _cancel, "ask": _ask}
+        entry = list_skills().get(command)
+        if command in handlers or entry is not None:
+            context.args = rest.split() if rest else []
+            logger.info("botón de menú user=%s cmd=/%s", user_id, command)
+            if entry is not None:
+                await _dispatch(update, context, entry)
+            else:
+                await handlers[command](update, context)
+            return
+
     try:
         text = await interactive.resume(
-            update, context, text=update.effective_message.text.strip()
+            update, context, text=incoming
         )
     except interactive.AskInput as exc:
+        logger.info("texto user=%s sigue pidiendo dato: %s", user_id, exc.prompt)
         await interactive.store_and_prompt(update, context, exc)
         return
     except runner.SkillError as exc:
+        logger.warning("texto user=%s falló: %s", user_id, exc)
         text = f"⚠️ {exc}"
     except Exception:  # noqa: BLE001
-        logger.exception("error completando comando pendiente")
+        logger.exception("error completando comando pendiente user=%s", user_id)
         text = "Ocurrió un error inesperado. Intenta de nuevo."
     if text is None:
+        logger.info("texto sin comando pendiente user=%s", user_id)
         await update.effective_message.reply_text(
             "No entiendo. Toca un botón del menú (usa /menu) o escribe /help "
             "para ver los comandos."
@@ -161,7 +201,9 @@ async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def _on_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not _allowed(update.effective_user.id):
+    user_id = getattr(update.effective_user, "id", None)
+    if not _allowed(user_id):
+        logger.warning("acceso denegado user=%s (ubicación)", user_id)
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
     loc = update.effective_message.location
@@ -169,11 +211,13 @@ async def _on_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         update, context, location=(loc.latitude, loc.longitude)
     )
     if result is not None:
+        logger.info("ubicación usada para completar comando user=%s", user_id)
         await update.effective_message.reply_text(
             result, parse_mode="HTML", disable_web_page_preview=True
         )
         return
     snapshot = geo.save(context, loc.latitude, loc.longitude)
+    logger.info("ubicación guardada user=%s (%s)", user_id, geo.describe(snapshot))
     await update.effective_message.reply_text(
         "📍 Ubicación guardada (aproximada):\n"
         f"<code>{geo.describe(snapshot)}</code>\n\n"
@@ -184,14 +228,18 @@ async def _on_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def _on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logger.error("error no controlado: %s", context.error, exc_info=context.error)
-    if update is not None and hasattr(update, "effective_message"):
+    exc = context.error
+    if errors.is_transient(exc):
+        # Fallos de red/rate-limit: python-telegram-bot los reintenta solo.
+        logger.warning("Telegram transitorio (se reintenta solo): %s", errors.describe(exc))
+        return
+    logger.error("error no controlado: %s", errors.describe(exc), exc_info=exc)
+    message = getattr(update, "effective_message", None)
+    if message is not None:
         try:
-            await update.effective_message.reply_text(
-                "⚠️ Ocurrió un error interno. Vuelve a intentarlo."
-            )
+            await message.reply_text("⚠️ Ocurrió un error interno. Vuelve a intentarlo.")
         except Exception:  # noqa: BLE001
-            pass
+            logger.debug("no se pudo avisar al usuario tras el error", exc_info=True)
 
 
 def build_app() -> Application:
@@ -221,9 +269,29 @@ def build_app() -> Application:
     return app
 
 
+def _log_startup_summary() -> None:
+    skills = list_skills()
+    logger.info(
+        "Comandos registrados (%d): %s",
+        len(skills),
+        ", ".join(sorted("/" + command for command in skills)),
+    )
+    logger.info(
+        "Config: lugar_por_defecto=%r whitelist=%d persistencia=%s ia=%s log_level=%s log_file=%s",
+        config.DEFAULT_PLACE,
+        len(config.ALLOWED_USER_IDS),
+        config.PERSISTENCE_FILE or "memoria",
+        "activa" if config.AI_API_KEY else "desactivada",
+        config.LOG_LEVEL,
+        config.LOG_FILE or "solo stdout",
+    )
+
+
 def main() -> None:
+    logger.info("Iniciando bot de skills MX ...")
+    _log_startup_summary()
     app = build_app()
-    logger.info("Bot iniciado. Ctrl+C para detener.")
+    logger.info("Bot iniciado. Ctrl+C para detener. Esperando actualizaciones ...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 

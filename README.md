@@ -56,9 +56,9 @@ columna "Comando" es el comando del bot de Telegram.
 | `/candidatos <nombre>` | [`comision-ine`](comision-ine/) | Candidaturas del INE | "Conóceles" |
 | `/canasta [estado]` | [`precios-canasta`](precios-canasta/) | Precios de la canasta básica | PROFECO |
 | `/ruta <origen> a <destino>` | [`mx-transit-route`](mx-transit-route/) | Ruta auto/caminando/bici | OSRM + Open-Meteo |
-| `/gasolina <lugar>` | [`gas-prices-mx`](gas-prices-mx/) | Gasolineras más baratas | CRE (datos.gob.mx) |
-| `/precio <producto>` | [`mercado-libre-search`](mercado-libre-search/) | Búsqueda de productos | API pública MLM |
-| `/inmuebles [renta\|venta] <q>` | [`mx-real-estate`](mx-real-estate/) | Inmuebles en México | Mercado Libre Inmuebles |
+| `/gasolina <lugar>` | [`gas-prices-mx`](gas-prices-mx/) | Gasolineras más baratas | CRE (publicación oficial) |
+| `/precio <producto>` | [`mx-product-search`](mx-product-search/) | Búsqueda de productos y precios | Liverpool |
+| `/inmuebles [renta\|venta] <q>` | [`mx-real-estate`](mx-real-estate/) | Inmuebles en México | Inmuebles24 |
 | `/envio <guía>` | [`delivery-tracking-mx`](delivery-tracking-mx/) | Seguimiento de paquete | Estafeta |
 | `/futbol [equipo\|jornada]` | [`mx-sports-results`](mx-sports-results/) | Liga MX / Liga de Expansión | API pública de ESPN |
 | `/feriado [año\|proximos]` | [`mx-holiday-calendar`](mx-holiday-calendar/) | Días feriados oficiales | Nager.Date |
@@ -94,8 +94,8 @@ El bot funciona **sin IA** (comandos deterministas) y además es **interactivo**
 | `/canasta [estado]` | `precios-canasta` | Precios de la canasta básica |
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici |
 | `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas cerca |
-| `/precio <producto>` | `mercado-libre-search` | Búsqueda en Mercado Libre |
-| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México |
+| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios (Liverpool) |
+| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México (Inmuebles24) |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete (Estafeta) |
 | `/futbol [equipo\|jornada\|expansion]` | `mx-sports-results` | Liga MX: tabla, equipo o jornada |
 | `/feriado [año\|proximos]` | `mx-holiday-calendar` | Días feriados oficiales de México |

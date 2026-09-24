@@ -59,6 +59,8 @@ async def main():
         ("empleo", ["python"]),
         ("universidades", ["medicina"]),
         ("universidades", ["todos"]),
+        ("precio", ["audifonos bluetooth"]),
+        ("inmuebles", ["renta", "polanco"]),
     ]
     for name, args in cases:
         try:

@@ -23,9 +23,9 @@ plugin y los tests de skills).
 | `/candidatos <nombre>` | `comision-ine` | Candidaturas del INE | "Conóceles" |
 | `/canasta [estado]` | `precios-canasta` | Precios de la canasta básica | PROFECO |
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici | OSRM + Open-Meteo |
-| `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas | CRE (datos.gob.mx) |
-| `/precio <producto>` | `mercado-libre-search` | Búsqueda de productos | API pública MLM |
-| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México | Mercado Libre Inmuebles |
+| `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas | CRE (publicación oficial) |
+| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios | Liverpool |
+| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México | Inmuebles24 |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete | Estafeta |
 | `/futbol [equipo\|jornada]` | `mx-sports-results` | Liga MX / Liga de Expansión | API pública de ESPN |
 | `/feriado [año\|proximos]` | `mx-holiday-calendar` | Días feriados oficiales | Nager.Date |
@@ -54,7 +54,7 @@ Estas skills usan la ubicación que compartas con el bot (📎 → Ubicación):
 - [precios-canasta](../docs/features/precios-canasta.md)
 - [mx-transit-route](../docs/features/mx-transit-route.md)
 - [gas-prices-mx](../docs/features/gas-prices-mx.md)
-- [mercado-libre-search](../docs/features/mercado-libre-search.md)
+- [mx-product-search](../docs/features/mx-product-search.md)
 - [mx-real-estate](../docs/features/mx-real-estate.md)
 - [delivery-tracking-mx](../docs/features/delivery-tracking-mx.md)
 - [mx-sports-results](../mx-sports-results/instruction.md)

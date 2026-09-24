@@ -1,0 +1,26 @@
+# Despliegue del bot con Docker Compose.
+#
+# Uso (desde tools/mx-telegram-bot):
+#   docker compose up -d --build
+#   docker compose logs -f
+#
+# Requiere un .env con TELEGRAM_BOT_TOKEN (copia .env.example a .env).
+# El build context es la raíz del repo (los helpers de skills viven ahí).
+
+services:
+  bot:
+    build:
+      context: ../..
+      dockerfile: tools/mx-telegram-bot/Dockerfile
+    image: mx-telegram-bot:latest
+    env_file:
+      - .env
+    environment:
+      BOT_LOG_LEVEL: ${BOT_LOG_LEVEL:-INFO}
+      BOT_PERSISTENCE_FILE: /app/tools/mx-telegram-bot/.data/bot_data.pickle
+    volumes:
+      - bot-data:/app/tools/mx-telegram-bot/.data
+    restart: unless-stopped
+
+volumes:
+  bot-data:

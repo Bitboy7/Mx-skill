@@ -18,7 +18,7 @@ async def inmuebles(update, context) -> str:
     data = await runner.run_skill("mx-real-estate", ["--q", query, "--tipo", tipo, "--limit", "5"])
     results = data.get("results") or []
     if not results:
-        return "No se encontraron inmuebles (o Mercado Libre bloqueó la petición desde este servidor)."
+        return "No se encontraron inmuebles para esa búsqueda."
 
     lines = []
     for item in results:
@@ -33,7 +33,11 @@ async def inmuebles(update, context) -> str:
             f"• <a href='{formatting.esc(item.get('link') or '')}'><b>{formatting.esc(item.get('titulo'))}</b></a>\n"
             f"  💲 <b>{formatting.esc(item.get('precio'))}</b> · {formatting.esc(' · '.join(attrs))} · {formatting.esc(item.get('ubicacion') or '')}"
         )
-    return formatting.section(f"Inmuebles ({tipo}): {query}", "\n".join(lines))
+    body = "\n".join(lines)
+    nota = data.get("nota")
+    if nota:
+        body += f"\n\nℹ️ {formatting.esc(nota)}"
+    return formatting.section(f"Inmuebles ({tipo}): {query}", body)
 
 
 register(

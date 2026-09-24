@@ -64,8 +64,8 @@ python -m bot.main
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici |
 | `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas cerca |
 | `/banos <lugar>` | `mx-restroom-nearby` | Baños públicos cerca (OpenStreetMap) |
-| `/precio <producto>` | `mercado-libre-search` | Búsqueda en Mercado Libre |
-| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México |
+| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios (Liverpool) |
+| `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México (Inmuebles24) |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete (Estafeta) |
 | `/futbol [equipo\|jornada\|expansion]` | `mx-sports-results` | Tabla, posición de un equipo o jornada de la Liga MX |
 | `/feriado [año\|proximos]` | `mx-holiday-calendar` | Días feriados oficiales de México |
@@ -94,6 +94,32 @@ En Telegram, pulsa **📎 → Ubicación** y envíala al bot. Se guarda como un 
 - Las skills de cercanía disponibles sin escribir el lugar son `/clima`, `/ecobici`, `/gasolina`, `/aire` y `/banos`.
 - Opcional: persiste entre reinicios con `BOT_PERSISTENCE_FILE=.data/bot_data.pickle`.
 
+## Logging
+
+El bot registra en stdout (y opcionalmente en archivo) lo que hace: inicio y
+comandos registrados, cada comando recibido (usuario, skill, args), la ejecución
+de cada skill (tiempo y resultado) y los errores con contexto.
+
+- `BOT_LOG_LEVEL`: `DEBUG`, `INFO` (por defecto), `WARNING` o `ERROR`.
+- `BOT_LOG_FILE`: archivo de log opcional (además de stdout). Vacío = solo stdout.
+- Los errores de red de Telegram (`NetworkError`, `TimedOut`, `RetryAfter`) se
+  registran como **WARNING** sin traceback, porque la librería los reintenta sola.
+- Los loggers ruidosos (`httpx`, `httpcore`, `telegram`) se fijan a `WARNING`.
+
+```bash
+BOT_LOG_LEVEL=DEBUG
+BOT_LOG_FILE=.data/bot.log
+```
+
+Ejemplos de líneas:
+
+```
+2026-09-23 20:24:24 INFO  mx-bot: cmd=/clima user=123 skill=mx-weather args=[Guadalajara]
+2026-09-23 20:24:25 INFO  mx-bot.runner: skill=mx-weather ok en 820 ms (rc=0)
+2026-09-23 20:24:25 INFO  mx-bot: cmd=/clima respondido en 900 ms (312 chars)
+2026-09-23 20:25:02 WARNING mx-bot: Telegram transitorio (se reintenta solo): NetworkError: ...
+```
+
 ## Capa de IA opcional (`/ask`)
 
 Sin configuración, `/ask` explica que requiere clave. Para activarla, en `.env`:
@@ -112,6 +138,42 @@ Ollama local: `AI_API_KEY=ollama`, `AI_BASE_URL=http://localhost:11434/v1`, `AI_
 - `BOT_DEFAULT_LAT` / `BOT_DEFAULT_LON`: coordenadas por defecto opcionales.
 - `BOT_ALLOWED_USER_IDS`: whitelist de IDs de Telegram (vacío = público).
 
+## Despliegue con Docker
+
+El bot ejecuta helpers de skills que viven en la **raíz del repo**, así que el
+**build context debe ser la raíz** (no `tools/mx-telegram-bot`).
+
+```bash
+# Desde la raíz del repo
+docker build -f tools/mx-telegram-bot/Dockerfile -t mx-telegram-bot .
+
+# Ejecutar (el token se pasa por env-file o -e; nunca se hornea en la imagen)
+docker run -d --name mx-telegram-bot \
+  --restart unless-stopped \
+  --env-file tools/mx-telegram-bot/.env \
+  mx-telegram-bot
+
+docker logs -f mx-telegram-bot
+```
+
+Con Docker Compose (desde `tools/mx-telegram-bot`):
+
+```bash
+docker compose up -d --build
+docker compose logs -f
+docker compose down
+```
+
+Notas:
+
+- Es **long polling**: no expone puertos ni necesita webhook/túnel.
+- No se hornea `.env` en la imagen (`.dockerignore` lo excluye); usa `--env-file` o variables de entorno.
+- La imagen corre como usuario **no root** (`bot`, uid 10001).
+- Para persistir la ubicación entre reinicios: define
+  `BOT_PERSISTENCE_FILE=.data/bot_data.pickle` y monta un volumen en
+  `/app/tools/mx-telegram-bot/.data` (el `docker-compose.yml` ya lo hace).
+- Variables útiles: `BOT_LOG_LEVEL`, `BOT_ALLOWED_USER_IDS`, `BOT_DEFAULT_PLACE`.
+
 ## Arquitectura
 
 ```
@@ -124,12 +186,16 @@ tools/mx-telegram-bot/
 │   ├── geo.py           # recurso compartido de ubicación (aprox. y por usuario)
 │   ├── interactive.py   # menú de botones y completado guiado de parámetros
 │   ├── ai.py            # enrutador opcional con LLM (OpenAI-compatible)
+│   ├── logging_setup.py # configuración de logging (stdout/archivo, niveles)
+│   ├── errors.py        # clasificación de errores de Telegram (transitorios)
 │   └── skills/          # un módulo por skill
 │       ├── registry.py  # registro central (SkillEntry)
 │       └── <skill>.py   # handler + registro
 ├── run.py               # arranque rápido: venv + deps + .env + bot (--smoke/--check)
 ├── run.bat / run.sh     # wrappers de conveniencia para Windows y macOS/Linux
 ├── smoke_test.py        # prueba los handlers sin Telegram (incluye ubicación)
+├── Dockerfile           # imagen de producción (build context = raíz del repo)
+├── docker-compose.yml   # despliegue con Docker Compose
 ├── requirements.txt
 └── .env.example
 ```

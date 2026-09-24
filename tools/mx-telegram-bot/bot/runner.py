@@ -8,8 +8,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sys
+import time
 from pathlib import Path
+
+logger = logging.getLogger("mx-bot.runner")
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -26,7 +30,7 @@ SKILL_SCRIPTS: dict[str, Path] = {
     "precios-canasta": Path("precios-canasta/scripts/precios_canasta.py"),
     "mx-transit-route": Path("mx-transit-route/scripts/mx_transit_route.py"),
     "gas-prices-mx": Path("gas-prices-mx/scripts/gas_prices.py"),
-    "mercado-libre-search": Path("mercado-libre-search/scripts/mercado_libre_search.py"),
+    "mx-product-search": Path("mx-product-search/scripts/mx_product_search.py"),
     "mx-real-estate": Path("mx-real-estate/scripts/mx_real_estate.py"),
     "delivery-tracking-mx": Path("delivery-tracking-mx/scripts/delivery_tracking_mx.py"),
     "mx-sports-results": Path("mx-sports-results/scripts/mx_sports.py"),
@@ -44,13 +48,19 @@ class SkillError(Exception):
     """Error controlado de una skill (mensaje ya en español)."""
 
 
+def _summarize_args(args: list[str]) -> str:
+    return " ".join(str(a)[:40] for a in args[:10])
+
+
 def resolve_script(skill_id: str) -> Path:
     try:
         script = SKILL_SCRIPTS[skill_id]
     except KeyError as exc:
+        logger.error("skill desconocida: %s", skill_id)
         raise SkillError(f"Skill desconocida: {skill_id}") from exc
     path = REPO_ROOT / script
     if not path.is_file():
+        logger.error("helper no encontrado skill=%s path=%s", skill_id, path)
         raise SkillError(f"No se encontró el helper de la skill {skill_id}: {path}")
     return path
 
@@ -58,6 +68,8 @@ def resolve_script(skill_id: str) -> Path:
 async def run_skill(skill_id: str, args: list[str], timeout: float = 45.0) -> dict:
     """Ejecuta la skill y devuelve su JSON. Lanza SkillError con mensaje amigable."""
     script = resolve_script(skill_id)
+    logger.info("skill=%s ejecutando args=[%s]", skill_id, _summarize_args(args))
+    started = time.perf_counter()
     proc = await asyncio.create_subprocess_exec(
         sys.executable,
         str(script),
@@ -71,8 +83,11 @@ async def run_skill(skill_id: str, args: list[str], timeout: float = 45.0) -> di
     except asyncio.TimeoutError:
         proc.kill()
         await proc.wait()
+        elapsed = (time.perf_counter() - started) * 1000
+        logger.error("skill=%s timeout tras %.0f ms (> %.0fs)", skill_id, elapsed, timeout)
         raise SkillError(f"La skill {skill_id} tardó demasiado (> {timeout:.0f}s).")
 
+    elapsed = (time.perf_counter() - started) * 1000
     out_text = stdout.decode("utf-8", "ignore").strip()
     err_text = stderr.decode("utf-8", "ignore").strip()
 
@@ -80,12 +95,23 @@ async def run_skill(skill_id: str, args: list[str], timeout: float = 45.0) -> di
     # sat-rfc-lookup sale con 2 en RFC inválidos). El JSON es la fuente de verdad.
     if out_text:
         try:
-            return json.loads(out_text)
+            data = json.loads(out_text)
+            logger.info("skill=%s ok en %.0f ms (rc=%s)", skill_id, elapsed, proc.returncode)
+            return data
         except json.JSONDecodeError:
-            pass
+            logger.warning(
+                "skill=%s stdout no es JSON (%.0f ms, rc=%s): %.200s",
+                skill_id,
+                elapsed,
+                proc.returncode,
+                out_text,
+            )
 
     if err_text:
         # SystemExit imprime su mensaje en stderr.
-        raise SkillError(err_text.strip().splitlines()[-1] if err_text.strip() else "Error desconocido de la skill.")
+        last_line = err_text.strip().splitlines()[-1] if err_text.strip() else ""
+        logger.warning("skill=%s falló (%.0f ms, rc=%s): %s", skill_id, elapsed, proc.returncode, last_line)
+        raise SkillError(last_line or "Error desconocido de la skill.")
 
+    logger.warning("skill=%s no devolvió resultados (%.0f ms, rc=%s)", skill_id, elapsed, proc.returncode)
     raise SkillError(f"La skill {skill_id} no devolvió resultados.")

@@ -5,8 +5,13 @@
 .omx
 .sisyphus
 .venv
+**/.venv
+**/venv
 .env
 .env.*
+**/.env
+**/.env.*
+**/*.pyc
 gha-creds-*.json
 *.dec
 *.plaintext

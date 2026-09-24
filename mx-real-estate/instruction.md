@@ -2,13 +2,19 @@
 
 ## What this skill does
 
-Busca **inmuebles en renta o venta en México** usando la **API pública de Mercado Libre Inmuebles** (categorías de renta/venta), y documenta los portales alternativos (Vivanuncios, Inmuebles24, Propiedades.com) como superficies oficiales de referencia.
+Busca **inmuebles en renta o venta en México** usando **Inmuebles24**: lee los
+anuncios que el portal sirve en `window.__PRELOADED_STATE__` (`listStore.listPostings`)
+y devuelve título, tipo, operación, precio, recámaras, baños, superficie, zona,
+inmobiliaria y enlace. Sin API key.
+
+Mercado Libre Inmuebles ya no permite búsqueda pública (HTTP 403 desde abril de
+2025), por eso se usa Inmuebles24 como fuente principal.
 
 ## When to use
 
 - "Busca departamentos en renta en Polanco"
 - "Casas en venta en Guadalajara"
-- "¿Qué rentas hay cerca de la Roma?"
+- "¿Qué rentas hay en la Roma?"
 
 ## When not to use
 
@@ -17,11 +23,11 @@ Busca **inmuebles en renta o venta en México** usando la **API pública de Merc
 ## Prerequisites
 
 - Internet y `python3` (solo biblioteca estándar).
-- Sin API key.
+- Sin API key ni sesión.
 
 ## Inputs
 
-- `--q`: búsqueda (ej. "departamento polanco").
+- `--q`: búsqueda libre (ej. "departamento polanco", "casa acapulco").
 - `--tipo`: `venta` (por defecto) o `renta`.
 - `--limit`: resultados (por defecto 5).
 
@@ -33,19 +39,20 @@ npx -y @nomadamas/k-skill@0 exec mx-real-estate scripts/mx_real_estate.py -- --q
 
 ## Official surfaces
 
-- API pública: `https://api.mercadolibre.com/sites/MLM/search` (categoría Inmuebles).
-- Portales alternativos: Vivanuncios, Inmuebles24, Propiedades.com.
+- Inmuebles24: `https://www.inmuebles24.com/{tipo}-en-{operacion}-en-{zona}.html`
+- Portales alternativos (solo referencia): Vivanuncios, Propiedades.com.
 
 ## Done when
 
 - Se listaron inmuebles con precio, zona y enlace.
-- Se indicó el total de resultados y el tipo (venta/renta).
+- Se indicó el total en la página y el tipo (venta/renta).
 
 ## Failure modes
 
-- **HTTP 403** de Mercado Libre desde IP de datacenter: remitir a los portales alternativos.
-- Precios/atributos faltantes en el anuncio: se omiten sin inventar.
-- Los portales alternativos tienen protección anti-bot; se documentan, no se automatizan.
+- **Sin resultados para el tipo pedido**: se reintenta con inmuebles en general y se anota en `nota`.
+- **Zona no reconocida**: Inmuebles24 redirige a resultados generales; se avisa en `nota`.
+- **HTTP no-200 / red caída**: mensaje con enlaces a los portales alternativos.
+- Nombres de zona ambiguos: se corrigen con un mapa de alias (p. ej. `acapulco` → `acapulco-de-juarez`).
 
 ## Notes
 

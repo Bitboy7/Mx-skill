@@ -1,6 +1,6 @@
 ---
 name: mx-real-estate
-description: Busca inmuebles en renta o venta en México (Mercado Libre Inmuebles + portales como Vivanuncios/Inmuebles24).
+description: Busca inmuebles en renta o venta en México usando Inmuebles24 (precio, recámaras, baños, m², zona y enlace).
 license: MIT
 metadata:
   category: real-estate

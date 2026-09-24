@@ -27,15 +27,17 @@ async def gasolina(update, context) -> str:
 
     results = data.get("results") or []
     if not results:
-        return "No se encontraron gasolineras en ese radio (o la API de la CRE está fuera de servicio)."
+        return "No se encontraron gasolineras en ese radio (o la publicación de la CRE está fuera de servicio)."
 
     fuel = data.get("fuel") or "regular"
     lines = []
     for g in results:
+        nombre = g.get("nombre") or g.get("razon_social") or "N/D"
+        mapa = g.get("mapa") or ""
+        enlace = f"<a href='{formatting.esc(mapa)}'><b>{formatting.esc(nombre)}</b></a>" if mapa else f"<b>{formatting.esc(nombre)}</b>"
         lines.append(
-            f"• <b>{formatting.esc(g.get('razon_social') or g.get('calle') or 'N/D')}</b> · "
-            f"${formatting.esc(g.get('precio'))}/L · {g.get('distancia_km')} km\n"
-            f"  {formatting.esc(g.get('colonia') or '')}, {formatting.esc(g.get('municipio') or '')}, {formatting.esc(g.get('estado') or '')}"
+            f"• {enlace}\n"
+            f"  💲 <b>${formatting.esc(g.get('precio'))}/L</b> · {g.get('distancia_km')} km"
         )
     return formatting.section(
         f"Gasolineras más baratas ({fuel}) cerca de {label}", "\n".join(lines)

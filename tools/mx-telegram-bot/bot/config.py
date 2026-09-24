@@ -32,4 +32,8 @@ LOCATION_MAX_AGE: int = int(os.getenv("BOT_LOCATION_MAX_AGE", "3600"))
 # Persistencia opcional de user_data (ruta a un archivo pickle). Vacío = en memoria.
 PERSISTENCE_FILE: str = os.getenv("BOT_PERSISTENCE_FILE", "")
 
+# Logging: nivel (DEBUG, INFO, WARNING, ERROR) y archivo opcional (vacío = solo stdout).
+LOG_LEVEL: str = os.getenv("BOT_LOG_LEVEL", "INFO")
+LOG_FILE: str = os.getenv("BOT_LOG_FILE", "")
+
 MAX_REPLY_LEN: int = 4000

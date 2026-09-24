@@ -9,21 +9,20 @@
 ## Primero necesitas
 
 - Python 3 (solo biblioteca estándar).
-- Internet. La API de la CRE es pública y no requiere API key; se llama directo desde la máquina del usuario (no usa `k-skill-proxy`).
+- Internet. La publicación de la CRE es pública y no requiere API key; se llama directo desde la máquina del usuario (no usa `k-skill-proxy`).
 
 ## Entradas
 
 - Ubicación: `--place "colonia, ciudad, estado"` o `--lat/--lon`.
 - Combustible: `--fuel regular|premium|diesel` (por defecto `regular`).
 - Radio: `--radius-km` (por defecto 10). Resultados: `--limit` (por defecto 5).
-- Cobertura: `--max-pages` (páginas de 100 estaciones; por defecto 20).
 
 ## Flujo básico
 
 1. Preguntar siempre la ubicación al usuario (no se estima).
 2. Resolver la ubicación (geocodificación pública Open-Meteo o coordenadas).
-3. Recorrer páginas del catálogo de la CRE.
-4. Calcular distancia (haversine) y filtrar por radio.
+3. Descargar el catálogo (`/publicaciones/places`) y los precios (`/publicaciones/prices`).
+4. Combinar por `place_id`, calcular distancia (haversine) y filtrar por radio.
 5. Ordenar por precio del combustible elegido y resumir 3–5 estaciones.
 
 ## Ejemplos
@@ -35,11 +34,12 @@ npx -y @nomadamas/k-skill@0 exec gas-prices-mx scripts/gas_prices.py -- --lat 19
 
 ## Fuente oficial
 
-- API pública de precios de la CRE: https://api.datos.gob.mx/v1/precio.gasolina.publico
+- Precios CRE: https://publicacionexterna.azurewebsites.net/publicaciones/prices
+- Catálogo CRE: https://publicacionexterna.azurewebsites.net/publicaciones/places
 - Portal oficial de la CRE: https://www.gob.mx/cre
 
 ## Precauciones
 
-- La API puede responder 503 temporalmente; reintentar y, si persiste, indicar el portal oficial.
-- El catálogo es paginado (100 estaciones por página); si la zona no aparece, subir `--max-pages`.
+- La publicación puede fallar temporalmente (5xx o conexión rechazada); reintentar y, si persiste, indicar el portal oficial.
+- La publicación no incluye calle/colonia/municipio; se ofrece un enlace de mapa por estación.
 - Es un skill de solo consulta; no compra ni reserva nada.

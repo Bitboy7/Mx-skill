@@ -1,0 +1,8 @@
+{
+  "name": "mx-used-car-search",
+  "description": "Busca autos usados/seminuevos en Mexico en anuncios publicos (Seminuevos.com) con filtros de marca, modelo, estado, presupuesto y un indice de confianza (dealer, antiguedad, km/ano, precio vs mercado). Use when the user asks to find reliable used or second-hand cars in Mexico.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: mx-used-car-search\ndescription: Busca autos usados/seminuevos confiables en Mexico (Seminuevos.com) con filtros e indice de confianza.\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
+}

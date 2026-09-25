@@ -1,0 +1,8 @@
+{
+  "name": "sat-consulta",
+  "description": "Consulta servicios publicos del SAT (Mexico) sin e.firma: verifica el estatus de un CFDI, busca un RFC en el listado 69-B (EFOS/EDOS), lee la Constancia de Situacion Fiscal por QR (RFC + folio) y consulta catalogos oficiales (clave de producto/servicio, regimen fiscal, uso de CFDI, unidad, moneda, etc.). Use when the user asks to check a Mexican invoice (CFDI), SAT taxpayer status, constancia or catalogs.",
+  "profiles": [
+    "lookup"
+  ],
+  "frontmatter": "name: sat-consulta\ndescription: Consulta servicios publicos del SAT (Mexico) sin e.firma (CFDI, 69-B, constancia por QR, catalogos).\nlicense: MIT\nmetadata:\n  category: finance\n  locale: es-MX\n  phase: v1"
+}

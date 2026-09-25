@@ -57,6 +57,10 @@ python -m bot.main
 | `/melate [números]` | `melate-results` | Resultados de la Lotería o verifica números |
 | `/cp <cp>` | `mx-zipcode-search` | Colonias/estado de un código postal |
 | `/rfc <rfc>` | `sat-rfc-lookup` | Valida la estructura de un RFC |
+| `/sat_factura <UUID> <RFC emisor> <RFC receptor> <total>` | `sat-consulta` | Estatus de un CFDI (vigente/cancelado) |
+| `/sat_69b <rfc>` | `sat-consulta` | RFC en el listado 69-B (EFOS/EDOS) |
+| `/sat_constancia <rfc> <id_cif>` | `sat-consulta` | Constancia de Situación Fiscal por QR |
+| `/sat_catalogo <tipo> <clave\|texto>` | `sat-consulta` | Catálogos oficiales del SAT |
 | `/ecobici <lugar>` | `ecobici-cdmx` | Ecobici CDMX con bicis disponibles |
 | `/cine [funciones ...]` | `cine-mx` | Cartelera y funciones (Cinemex) |
 | `/candidatos <nombre>` | `comision-ine` | Candidatas y candidatos del INE |
@@ -73,7 +77,9 @@ python -m bot.main
 | `/licitaciones <palabra>` | `compranet-search` | Licitaciones y contrataciones públicas (Compras MX) |
 | `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo en México/LATAM (tecnología) |
 | `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras |
+| `/autos <marca> [modelo] [en <estado>]` | `mx-used-car-search` | Autos usados/seminuevos con índice de confianza (dealer, km/año, precio) |
 | `/menu` | — | Muestra los botones de comandos |
+| `/sat` | — | Submenú de consultas públicas del SAT (CFDI, 69-B, constancia, catálogos) |
 | `/cancel` | — | Cancela un comando pendiente de completar |
 | `/ask <mensaje>` | — | Enruta con IA a la skill correcta |
 | `/help` | — | Lista los comandos |
@@ -81,6 +87,7 @@ python -m bot.main
 ## Modo interactivo
 
 - **Menú de botones**: con `/menu` (o `/start`) el bot muestra un teclado con los comandos; tocar un botón ejecuta el comando sin escribir nada.
+- **Submenú SAT**: con `/sat` (o el botón 🧾 /sat) se despliegan las consultas públicas del SAT: verificar un CFDI, listado 69-B, constancia por QR y catálogos. Usa la skill `sat-consulta` (dependencia `satcfdi`, instalada por `requirements.txt`).
 - **Parámetros guiados**: si un comando necesita un dato y no lo recibes (p. ej. `/cp` sin código, `/precio` sin producto), el bot pregunta y tu siguiente mensaje completa el comando. Con `/cancel` se aborta la pregunta.
 - **Ubicación 📍**: cuando un comando de lugar (`/clima`, `/ecobici`, `/gasolina`, `/aire`, `/banos`, `/ruta`) está esperando un dato, puedes responder enviando tu ubicación (📎 → Ubicación) y se usará como parámetro automáticamente.
 
@@ -179,7 +186,7 @@ Notas:
 ```
 tools/mx-telegram-bot/
 ├── bot/
-│   ├── main.py          # construcción de la app, /start /help /ask /menu, dispatch, 📍 ubicación
+│   ├── main.py          # construcción de la app, /start /help /ask /menu /sat, dispatch, 📍 ubicación
 │   ├── config.py        # configuración desde .env
 │   ├── runner.py        # ejecuta los helpers como subproceso y parsea JSON
 │   ├── formatting.py    # utilidades de formato para Telegram (HTML)

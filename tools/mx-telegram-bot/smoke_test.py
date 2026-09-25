@@ -59,8 +59,11 @@ async def main():
         ("empleo", ["python"]),
         ("universidades", ["medicina"]),
         ("universidades", ["todos"]),
+        ("autos", ["nissan", "sentra"]),
         ("precio", ["audifonos bluetooth"]),
         ("inmuebles", ["renta", "polanco"]),
+        ("sat_69b", ["AAA010101AAA"]),
+        ("sat_catalogo", ["regimen", "601"]),
     ]
     for name, args in cases:
         try:
@@ -93,7 +96,7 @@ async def main():
 
     # --- Flujo interactivo: comandos sin parámetros piden el dato ---
     print("\n=== Interactivo: comandos sin parámetros piden el dato ===")
-    for name in ["cp", "rfc", "precio", "inmuebles", "clima", "ruta", "aire", "banos", "bienestar", "licitaciones", "empleo", "universidades"]:
+    for name in ["cp", "rfc", "precio", "inmuebles", "clima", "ruta", "aire", "banos", "bienestar", "licitaciones", "empleo", "universidades", "autos", "sat_factura", "sat_69b", "sat_constancia", "sat_catalogo"]:
         entry = skills.list_skills().get(name)
         try:
             await entry.handler(None, FakeContext([], {}))

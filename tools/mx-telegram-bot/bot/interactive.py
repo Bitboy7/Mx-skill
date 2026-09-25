@@ -44,20 +44,30 @@ def clear_pending(context) -> bool:
 
 
 def menu_keyboard() -> ReplyKeyboardMarkup:
-    """Botones con los comandos principales (sin necesidad de escribirlos)."""
+    """Botones con los comandos principales (sin necesidad de escribirlos).
+
+    Se usan 3 columnas para que el teclado sea compacto (8 filas) y quede
+    visible en todos los clientes; `/sat` va en la primera fila.
+    """
     rows = [
-        ["🌤 /clima", "🌬 /aire"],
-        ["⚽ /futbol", "🚲 /ecobici"],
-        ["⛽ /gasolina", "🎰 /melate"],
-        ["📰 /noticias", "🎬 /cine"],
-        ["🛒 /canasta", "📮 /cp"],
-        ["🆔 /rfc", "💰 /precio"],
-        ["🏠 /inmuebles", "📦 /envio"],
-        ["🗺 /ruta", "🚻 /banos"],
-        ["📅 /feriado", "👥 /candidatos"],
-        ["🤝 /bienestar", "📋 /licitaciones"],
-        ["💼 /empleo", "🎓 /universidades"],
-        ["❓ /help"],
+        ["🌤 /clima", "🌬 /aire", "🧾 /sat", "🚗 /autos"],
+        ["⚽ /futbol", "🚲 /ecobici", "⛽ /gasolina"],
+        ["🎰 /melate", "📰 /noticias", "🎬 /cine"],
+        ["🛒 /canasta", "📮 /cp", "🆔 /rfc"],
+        ["💰 /precio", "🏠 /inmuebles", "📦 /envio"],
+        ["🗺 /ruta", "🚻 /banos", "📅 /feriado"],
+        ["👥 /candidatos", "🤝 /bienestar", "📋 /licitaciones"],
+        ["💼 /empleo", "🎓 /universidades", "❓ /help"],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def sat_keyboard() -> ReplyKeyboardMarkup:
+    """Submenú con las consultas públicas del SAT (sin e.firma)."""
+    rows = [
+        ["🧾 /sat_factura", "🕵️ /sat_69b"],
+        ["📄 /sat_constancia", "📚 /sat_catalogo"],
+        ["🆔 /rfc", "🧭 /menu"],
     ]
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 

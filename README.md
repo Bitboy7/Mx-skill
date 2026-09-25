@@ -7,8 +7,8 @@ expone como comandos. Es una adaptación al público mexicano de las skills de
 [`NomaDamas/k-skill`](https://github.com/NomaDamas/k-skill), con fuentes
 oficiales/públicas de México y sin API key.
 
-- 22 skills MX (clima, aire, noticias, Lotería, CP, RFC, gasolina, trámites,
-  transporte, comercio, gobierno, empleo, universidades…) en español.
+- 24 skills MX (clima, aire, noticias, Lotería, CP, RFC/SAT, gasolina, trámites,
+  transporte, comercio, autos, gobierno, empleo, universidades…) en español.
 - Bot de Telegram listo para usar (`/clima`, `/melate`, `/gasolina`, `/rfc`…).
 - Compatibles con Claude Code, Codex, OpenCode, OpenClaw/ClawHub y otros agentes.
 - Índice rápido de las skills MX: [`Skills/README.md`](Skills/README.md).
@@ -51,6 +51,10 @@ columna "Comando" es el comando del bot de Telegram.
 | `/melate [números]` | [`melate-results`](melate-results/) | Resultados de la Lotería Nacional / verificar números | loterianacional.gob.mx |
 | `/cp <cp>` | [`mx-zipcode-search`](mx-zipcode-search/) | Colonias/estado de un código postal | SEPOMEX (fuentes públicas) |
 | `/rfc <rfc>` | [`sat-rfc-lookup`](sat-rfc-lookup/) | Valida la estructura de un RFC | SAT |
+| `/sat_factura <UUID> <RFC> <RFC> <total>` | [`sat-consulta`](sat-consulta/) | Estatus de un CFDI (vigente/cancelado) | SAT (validación pública) |
+| `/sat_69b <rfc>` | [`sat-consulta`](sat-consulta/) | RFC en el listado 69-B (EFOS/EDOS) | SAT (listado 69-B) |
+| `/sat_constancia <rfc> <id_cif>` | [`sat-consulta`](sat-consulta/) | Constancia de Situación Fiscal por QR | SAT (validador QR) |
+| `/sat_catalogo <tipo> <clave>` | [`sat-consulta`](sat-consulta/) | Catálogos oficiales del SAT | SAT (catálogos) |
 | `/ecobici <lugar>` | [`ecobici-cdmx`](ecobici-cdmx/) | Estaciones de Ecobici CDMX | GBFS oficial |
 | `/cine [funciones]` | [`cine-mx`](cine-mx/) | Cartelera y funciones | Cinemex / Cinépolis |
 | `/candidatos <nombre>` | [`comision-ine`](comision-ine/) | Candidaturas del INE | "Conóceles" |
@@ -67,6 +71,7 @@ columna "Comando" es el comando del bot de Telegram.
 | `/bienestar [tema\|todos]` | [`beneficios-programas`](beneficios-programas/) | Programas para el Bienestar | Portal oficial |
 | `/empleo <puesto\|skill>` | [`mx-job-search`](mx-job-search/) | Vacantes de empleo (tecnología/LATAM) | API pública Vacantes Digitales |
 | `/universidades <carrera\|universidad>` | [`mx-university-search`](mx-university-search/) | Universidades de México y sus carreras | Catálogo curado + enlaces oficiales |
+| `/autos <marca> [modelo] [en <estado>]` | [`mx-used-car-search`](mx-used-car-search/) | Autos usados/seminuevos con índice de confianza | Seminuevos.com (anuncios públicos) |
 
 Guías por skill: [`Skills/README.md`](Skills/README.md).
 
@@ -88,6 +93,10 @@ El bot funciona **sin IA** (comandos deterministas) y además es **interactivo**
 | `/melate [números]` | `melate-results` | Resultados de la Lotería o verifica números |
 | `/cp <cp>` | `mx-zipcode-search` | Colonias/estado de un código postal |
 | `/rfc <rfc>` | `sat-rfc-lookup` | Valida la estructura de un RFC |
+| `/sat_factura <UUID> <RFC> <RFC> <total>` | `sat-consulta` | Estatus de un CFDI (vigente/cancelado) |
+| `/sat_69b <rfc>` | `sat-consulta` | RFC en el listado 69-B (EFOS/EDOS) |
+| `/sat_constancia <rfc> <id_cif>` | `sat-consulta` | Constancia de Situación Fiscal por QR |
+| `/sat_catalogo <tipo> <clave>` | `sat-consulta` | Catálogos oficiales del SAT |
 | `/ecobici <lugar>` | `ecobici-cdmx` | Ecobici CDMX con bicis disponibles |
 | `/cine [funciones ...]` | `cine-mx` | Cartelera y funciones (Cinemex) |
 | `/candidatos <nombre>` | `comision-ine` | Candidatas y candidatos del INE |
@@ -104,7 +113,8 @@ El bot funciona **sin IA** (comandos deterministas) y además es **interactivo**
 | `/bienestar [tema\|todos]` | `beneficios-programas` | Programas para el Bienestar |
 | `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo en México/LATAM (tecnología) |
 | `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras |
-| `/menu`, `/help`, `/cancel`, `/ask <mensaje>` | — | Menú, ayuda, cancelar y enrutado con IA |
+| `/autos <marca> [modelo] [en <estado>]` | `mx-used-car-search` | Autos usados/seminuevos con índice de confianza |
+| `/menu`, `/help`, `/cancel`, `/ask <mensaje>`, `/sat` | — | Menú, ayuda, cancelar, SAT y enrutado con IA |
 
 ## Estructura del repositorio
 

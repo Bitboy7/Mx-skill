@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 import time
 
-from telegram import Update
+from telegram import BotCommand, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, PicklePersistence, filters
 
 from . import ai, config, errors, formatting, geo, interactive, logging_setup, runner
@@ -89,6 +89,20 @@ async def _cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.effective_message.reply_text(await interactive.cancel(update, context))
 
 
+async def _sat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
+    await update.effective_message.reply_text(
+        "🧾 <b>Consultas del SAT</b>\n"
+        "Servicios públicos, sin e.firma. Toca una opción 👇\n\n"
+        "🔎 <b>Verificar factura:</b> estatus de un CFDI (vigente/cancelado)\n"
+        "🕵️ <b>69-B:</b> RFC en listados EFOS/EDOS\n"
+        "📄 <b>Constancia:</b> por QR (RFC + folio id_cif)\n"
+        "📚 <b>Catálogos:</b> clave de producto/servicio, régimen, uso CFDI…",
+        parse_mode="HTML",
+        reply_markup=interactive.sat_keyboard(),
+    )
+
+
 async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     interactive.clear_pending(context)
     lines = []
@@ -100,6 +114,7 @@ async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
     lines.append("")
     lines.append("🤖 <b>/ask</b> &lt;mensaje&gt; — enruta con IA (requiere AI_API_KEY)")
+    lines.append("🧾 <b>/sat</b> — submenú de consultas del SAT (CFDI, 69-B, constancia, catálogos)")
     lines.append("🧭 <b>/menu</b> — muestra los botones de comandos")
     lines.append("🚫 <b>/cancel</b> — cancela un comando en espera de datos")
     await update.effective_message.reply_text(
@@ -163,7 +178,7 @@ async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if match:
         command = match.group(1)
         rest = (match.group(2) or "").strip()
-        handlers = {"start": _start, "help": _help, "menu": _menu, "cancel": _cancel, "ask": _ask}
+        handlers = {"start": _start, "help": _help, "menu": _menu, "cancel": _cancel, "ask": _ask, "sat": _sat}
         entry = list_skills().get(command)
         if command in handlers or entry is not None:
             context.args = rest.split() if rest else []
@@ -242,6 +257,32 @@ async def _on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
             logger.debug("no se pudo avisar al usuario tras el error", exc_info=True)
 
 
+def _bot_commands() -> list[BotCommand]:
+    """Comandos que Telegram muestra en el menú `/` del bot."""
+    commands = [
+        BotCommand("menu", "Muestra los botones de comandos"),
+        BotCommand("sat", "Consultas públicas del SAT (CFDI, 69-B, constancia, catálogos)"),
+        BotCommand("ask", "Enruta un mensaje libre con IA"),
+        BotCommand("help", "Lista los comandos"),
+        BotCommand("cancel", "Cancela un comando pendiente"),
+    ]
+    commands.extend(
+        BotCommand(entry.command, entry.description[:256])
+        for entry in sorted(list_skills().values(), key=lambda e: e.command)
+    )
+    return commands
+
+
+async def _post_init(app: Application) -> None:
+    """Registra los comandos en Telegram al arrancar (menú `/`)."""
+    try:
+        commands = _bot_commands()
+        await app.bot.set_my_commands(commands)
+        logger.info("Comandos registrados en Telegram (%d).", len(commands))
+    except Exception:  # noqa: BLE001
+        logger.warning("No se pudieron registrar los comandos en Telegram.", exc_info=True)
+
+
 def build_app() -> Application:
     if not config.BOT_TOKEN:
         raise SystemExit(
@@ -249,7 +290,7 @@ def build_app() -> Application:
             "(consigue el token con @BotFather)."
         )
 
-    builder = Application.builder().token(config.BOT_TOKEN)
+    builder = Application.builder().token(config.BOT_TOKEN).post_init(_post_init)
     if config.PERSISTENCE_FILE:
         builder = builder.persistence(PicklePersistence(filepath=config.PERSISTENCE_FILE))
     app = builder.build()
@@ -265,6 +306,7 @@ def build_app() -> Application:
     app.add_handler(CommandHandler("menu", _menu))
     app.add_handler(CommandHandler("cancel", _cancel))
     app.add_handler(CommandHandler("ask", _ask))
+    app.add_handler(CommandHandler("sat", _sat))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, _on_text))
     return app
 

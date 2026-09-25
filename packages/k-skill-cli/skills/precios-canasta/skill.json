@@ -1,8 +1,8 @@
 {
   "name": "precios-canasta",
-  "description": "Precios de la canasta básica en México por tienda y estado (PROFECO, API pública de datos.gob.mx). Use when the user asks about grocery basket prices or cheapest supermarket in Mexico.",
+  "description": "Precios de la canasta básica en México por tienda y estado (PROFECO, reporte Quién es Quién en los Precios). Use when the user asks about grocery basket prices or cheapest supermarket in Mexico.",
   "profiles": [
     "lookup"
   ],
-  "frontmatter": "name: precios-canasta\ndescription: Precios de la canasta básica en México por tienda y estado (PROFECO, API pública de datos.gob.mx).\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
+  "frontmatter": "name: precios-canasta\ndescription: Precios de la canasta básica en México por tienda y estado (PROFECO, reporte Quién es Quién en los Precios).\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
 }

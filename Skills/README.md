@@ -24,7 +24,7 @@ plugin y los tests de skills).
 | `/canasta [estado]` | `precios-canasta` | Precios de la canasta básica | PROFECO |
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici | OSRM + Open-Meteo |
 | `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas | CRE (publicación oficial) |
-| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios | Liverpool |
+| `/precio <producto>` | `mx-product-search` | Búsqueda y comparación de precios | Liverpool, Chedraui, OfficeMax |
 | `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México | Inmuebles24 |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete | Estafeta |
 | `/futbol [equipo\|jornada]` | `mx-sports-results` | Liga MX / Liga de Expansión | API pública de ESPN |

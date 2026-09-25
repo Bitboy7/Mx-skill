@@ -57,7 +57,7 @@ columna "Comando" es el comando del bot de Telegram.
 | `/canasta [estado]` | [`precios-canasta`](precios-canasta/) | Precios de la canasta básica | PROFECO |
 | `/ruta <origen> a <destino>` | [`mx-transit-route`](mx-transit-route/) | Ruta auto/caminando/bici | OSRM + Open-Meteo |
 | `/gasolina <lugar>` | [`gas-prices-mx`](gas-prices-mx/) | Gasolineras más baratas | CRE (publicación oficial) |
-| `/precio <producto>` | [`mx-product-search`](mx-product-search/) | Búsqueda de productos y precios | Liverpool |
+| `/precio <producto>` | [`mx-product-search`](mx-product-search/) | Búsqueda y comparación de precios | Liverpool, Chedraui, OfficeMax |
 | `/inmuebles [renta\|venta] <q>` | [`mx-real-estate`](mx-real-estate/) | Inmuebles en México | Inmuebles24 |
 | `/envio <guía>` | [`delivery-tracking-mx`](delivery-tracking-mx/) | Seguimiento de paquete | Estafeta |
 | `/futbol [equipo\|jornada]` | [`mx-sports-results`](mx-sports-results/) | Liga MX / Liga de Expansión | API pública de ESPN |
@@ -94,7 +94,7 @@ El bot funciona **sin IA** (comandos deterministas) y además es **interactivo**
 | `/canasta [estado]` | `precios-canasta` | Precios de la canasta básica |
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici |
 | `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas cerca |
-| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios (Liverpool) |
+| `/precio <producto>` | `mx-product-search` | Búsqueda y comparación de precios (Liverpool, Chedraui, OfficeMax) |
 | `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México (Inmuebles24) |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete (Estafeta) |
 | `/futbol [equipo\|jornada\|expansion]` | `mx-sports-results` | Liga MX: tabla, equipo o jornada |

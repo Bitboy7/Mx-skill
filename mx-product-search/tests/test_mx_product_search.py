@@ -43,6 +43,7 @@ class ExtractProductsTests(unittest.TestCase):
         self.assertEqual(total, 2)
         self.assertEqual(len(products), 2)
         first = products[0]
+        self.assertEqual(first["tienda"], "Liverpool")
         self.assertEqual(first["titulo"], "Producto Uno")
         self.assertEqual(first["marca"], "MARCA1")
         self.assertEqual(first["precio_mxn"], 799)
@@ -73,6 +74,105 @@ class BuildUrlTests(unittest.TestCase):
         url = mx_product_search.build_url("audifonos bluetooth")
         self.assertTrue(url.startswith("https://www.liverpool.com.mx/tienda?s="))
         self.assertIn("s=audifonos+bluetooth", url)
+
+
+VTEX_PAYLOAD = [
+    {
+        "productId": "6001673",
+        "productName": "Audifonos de Diadema Behringer HPM1000",
+        "brand": "Behringer",
+        "link": "https://www.chedraui.com.mx/audifonos-6001673/p",
+        "items": [
+            {
+                "sellers": [
+                    {
+                        "sellerName": "Sonoritmo",
+                        "commertialOffer": {"Price": 399.0, "ListPrice": 499.0, "AvailableQuantity": 10},
+                    }
+                ]
+            }
+        ],
+    },
+    {
+        "productId": "6009999",
+        "productName": "Audifonos sin oferta",
+        "brand": "Generico",
+        "link": "/p/sin-oferta",
+        "items": [{"sellers": [{"sellerName": "X", "commertialOffer": {"Price": 0, "ListPrice": 0}}]}],
+    },
+]
+
+
+class VtexSearchTests(unittest.TestCase):
+    def test_parses_and_skips_unavailable(self):
+        store = mx_product_search.STORES["chedraui"]
+        with mock.patch.object(mx_product_search, "http_get_json", return_value=VTEX_PAYLOAD):
+            products, total = mx_product_search.search_vtex(store, "audifonos", 5)
+
+        self.assertEqual(total, 2)
+        self.assertEqual(len(products), 1)
+        item = products[0]
+        self.assertEqual(item["tienda"], "Chedraui")
+        self.assertEqual(item["titulo"], "Audifonos de Diadema Behringer HPM1000")
+        self.assertEqual(item["precio_mxn"], 399.0)
+        self.assertEqual(item["precio_original_mxn"], 499.0)
+        self.assertEqual(item["descuento_pct"], 20)
+        self.assertEqual(item["link"], "https://www.chedraui.com.mx/audifonos-6001673/p")
+
+    def test_builds_relative_link_from_base(self):
+        store = mx_product_search.STORES["officemax"]
+        payload = [dict(VTEX_PAYLOAD[1], items=[{"sellers": [{"commertialOffer": {"Price": 10.0}}]}])]
+        with mock.patch.object(mx_product_search, "http_get_json", return_value=payload):
+            products, _ = mx_product_search.search_vtex(store, "x", 5)
+        self.assertEqual(products[0]["link"], "https://www.officemax.com.mx/p/sin-oferta")
+
+
+class ResolveStoresTests(unittest.TestCase):
+    def test_defaults_to_all(self):
+        self.assertEqual(mx_product_search.resolve_stores(None), mx_product_search.DEFAULT_STORES)
+
+    def test_parses_and_dedupes(self):
+        self.assertEqual(
+            mx_product_search.resolve_stores("Chedraui, liverpool, chedraui, nope"),
+            ["chedraui", "liverpool"],
+        )
+
+
+class MultiStoreMainTests(unittest.TestCase):
+    def test_main_prints_per_store_breakdown(self):
+        def fake_search(key, query, limit):
+            name = mx_product_search.STORES[key]["name"]
+            return [{"tienda": name, "titulo": f"{name} {query}", "precio_mxn": 100.0}], 1
+
+        stdout = io.StringIO()
+        with (
+            contextlib.redirect_stdout(stdout),
+            mock.patch.object(mx_product_search, "search_store", side_effect=fake_search),
+        ):
+            mx_product_search.main(["--q", "iphone", "--limit", "2"])
+
+        rendered = json.loads(stdout.getvalue())
+        self.assertEqual(rendered["query"], "iphone")
+        self.assertIn("Liverpool", rendered["por_tienda"])
+        self.assertIn("Chedraui", rendered["por_tienda"])
+        self.assertEqual(len(rendered["results"]), len(mx_product_search.DEFAULT_STORES))
+
+    def test_main_records_store_errors(self):
+        def fake_search(key, query, limit):
+            if mx_product_search.STORES[key]["kind"] == "vtex":
+                raise RuntimeError("HTTP 503")
+            return [{"tienda": "Liverpool", "titulo": "ok", "precio_mxn": 10.0}], 1
+
+        stdout = io.StringIO()
+        with (
+            contextlib.redirect_stdout(stdout),
+            mock.patch.object(mx_product_search, "search_store", side_effect=fake_search),
+        ):
+            mx_product_search.main(["--q", "iphone"])
+
+        rendered = json.loads(stdout.getvalue())
+        self.assertEqual(rendered["errores"], {"Chedraui": "HTTP 503", "OfficeMax": "HTTP 503"})
+        self.assertEqual(len(rendered["results"]), 1)
 
 
 class MainTests(unittest.TestCase):

@@ -1,6 +1,6 @@
 ---
 name: mx-product-search
-description: Busca productos y precios en Liverpool México (título, marca, precio, descuento, rating y enlace).
+description: Busca y compara precios de productos en varias tiendas mexicanas (Liverpool, Chedraui, OfficeMax).
 license: MIT
 metadata:
   category: shopping

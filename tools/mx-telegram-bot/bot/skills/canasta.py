@@ -22,11 +22,14 @@ async def canasta(update, context) -> str:
     if not results:
         return f"No hay datos de canasta básica{f' para {estado}' if estado else ''}."
 
-    lines = [
-        f"• <b>{formatting.esc(r.get('tienda') or 'N/D')}</b> · {formatting.esc(r.get('estado') or 'N/D')} · "
-        f"${formatting.esc(r.get('costo_mxn'))}"
-        for r in results
-    ]
+    lines = []
+    for r in results:
+        costo = r.get("costo_mxn")
+        costo_txt = f"{costo:,.2f}" if isinstance(costo, (int, float)) else str(costo or "N/D")
+        lines.append(
+            f"• <b>{formatting.esc(r.get('tienda') or 'N/D')}</b> · "
+            f"{formatting.esc(r.get('estado') or 'N/D')} · ${formatting.esc(costo_txt)}"
+        )
     title = f"Canasta básica más barata{f' en {estado}' if estado else ''}"
     return formatting.section(title, "\n".join(lines))
 

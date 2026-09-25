@@ -337,13 +337,35 @@ class NewSkillHandlerTests(unittest.IsolatedAsyncioTestCase):
         with mock.patch.object(runner, "run_skill", new=fake):
             text = await skills.list_skills()["precio"].handler(None, FakeContext(["audifonos"]))
 
-        self.assertIn("Productos: audifonos", text)
+        self.assertIn("Precios: audifonos", text)
         self.assertIn("Galaxy Buds", text)
         self.assertIn("799", text)
         self.assertIn("liverpool.com.mx", text)
         skill_id, args = calls[0]
         self.assertEqual(skill_id, "mx-product-search")
         self.assertEqual(args[:2], ["--q", "audifonos"])
+
+    async def test_precio_groups_by_store(self):
+        async def multi_store(skill_id, args, timeout=45.0):
+            return {
+                "query": "audifonos",
+                "por_tienda": {
+                    "Liverpool": [{"tienda": "Liverpool", "titulo": "Galaxy Buds", "precio_mxn": 799, "link": "https://www.liverpool.com.mx/x"}],
+                    "Chedraui": [{"tienda": "Chedraui", "titulo": "Aiwa Bluetooth", "precio_mxn": 372.06, "link": "https://www.chedraui.com.mx/y"}],
+                    "OfficeMax": [],
+                },
+                "errores": {"OfficeMax": "HTTP 503"},
+            }
+
+        with mock.patch.object(runner, "run_skill", new=multi_store):
+            text = await skills.list_skills()["precio"].handler(None, FakeContext(["audifonos"]))
+
+        self.assertIn("Liverpool", text)
+        self.assertIn("Chedraui", text)
+        self.assertIn("Aiwa Bluetooth", text)
+        self.assertIn("$372.06", text)
+        self.assertNotIn("OfficeMax", text.split("Sin datos de")[0])
+        self.assertIn("Sin datos de: OfficeMax", text)
 
     async def test_precio_asks_for_query(self):
         with self.assertRaises(interactive.AskInput) as ctx:

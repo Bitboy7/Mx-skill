@@ -1,8 +1,8 @@
 {
   "name": "mx-product-search",
-  "description": "Busca productos y precios en Liverpool México (título, marca, precio, descuento, rating y enlace). Use when the user asks to search products or compare prices in Mexican online stores.",
+  "description": "Busca y compara precios de productos en varias tiendas mexicanas (Liverpool, Chedraui, OfficeMax): título, marca, precio, descuento y enlace. Use when the user asks to search products or compare prices in Mexican online stores.",
   "profiles": [
     "lookup"
   ],
-  "frontmatter": "name: mx-product-search\ndescription: Busca productos y precios en Liverpool México (título, marca, precio, descuento, rating y enlace).\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
+  "frontmatter": "name: mx-product-search\ndescription: Busca y compara precios de productos en varias tiendas mexicanas (Liverpool, Chedraui, OfficeMax).\nlicense: MIT\nmetadata:\n  category: shopping\n  locale: es-MX\n  phase: v1"
 }

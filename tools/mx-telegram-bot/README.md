@@ -64,7 +64,7 @@ python -m bot.main
 | `/ruta <origen> a <destino>` | `mx-transit-route` | Ruta auto/caminando/bici |
 | `/gasolina <lugar>` | `gas-prices-mx` | Gasolineras más baratas cerca |
 | `/banos <lugar>` | `mx-restroom-nearby` | Baños públicos cerca (OpenStreetMap) |
-| `/precio <producto>` | `mx-product-search` | Búsqueda de productos y precios (Liverpool) |
+| `/precio <producto>` | `mx-product-search` | Búsqueda y comparación de precios (Liverpool, Chedraui, OfficeMax) |
 | `/inmuebles [renta\|venta] <q>` | `mx-real-estate` | Inmuebles en México (Inmuebles24) |
 | `/envio <guía>` | `delivery-tracking-mx` | Seguimiento de paquete (Estafeta) |
 | `/futbol [equipo\|jornada\|expansion]` | `mx-sports-results` | Tabla, posición de un equipo o jornada de la Liga MX |

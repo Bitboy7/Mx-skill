@@ -1,6 +1,6 @@
 ---
 name: precios-canasta
-description: Precios de la canasta básica en México por tienda y estado (PROFECO, API pública de datos.gob.mx).
+description: Precios de la canasta básica en México por tienda y estado (PROFECO, reporte Quién es Quién en los Precios).
 license: MIT
 metadata:
   category: shopping

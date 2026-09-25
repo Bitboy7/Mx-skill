@@ -57,6 +57,10 @@ python -m bot.main
 | `/melate [números]` | `melate-results` | Resultados de la Lotería o verifica números |
 | `/cp <cp>` | `mx-zipcode-search` | Colonias/estado de un código postal |
 | `/rfc <rfc>` | `sat-rfc-lookup` | Valida la estructura de un RFC |
+| `/sat_factura <UUID> <RFC emisor> <RFC receptor> <total>` | `sat-consulta` | Estatus de un CFDI (vigente/cancelado) |
+| `/sat_69b <rfc>` | `sat-consulta` | RFC en el listado 69-B (EFOS/EDOS) |
+| `/sat_constancia <rfc> <id_cif>` | `sat-consulta` | Constancia de Situación Fiscal por QR |
+| `/sat_catalogo <tipo> <clave\|texto>` | `sat-consulta` | Catálogos oficiales del SAT |
 | `/ecobici <lugar>` | `ecobici-cdmx` | Ecobici CDMX con bicis disponibles |
 | `/cine [funciones ...]` | `cine-mx` | Cartelera y funciones (Cinemex) |
 | `/candidatos <nombre>` | `comision-ine` | Candidatas y candidatos del INE |
@@ -73,15 +77,18 @@ python -m bot.main
 | `/licitaciones <palabra>` | `compranet-search` | Licitaciones y contrataciones públicas (Compras MX) |
 | `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo en México/LATAM (tecnología) |
 | `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras |
+| `/autos <marca> [modelo] [en <estado>]` | `mx-used-car-search` | Autos usados/seminuevos con índice de confianza (dealer, km/año, precio) |
 | `/menu` | — | Muestra los botones de comandos |
+| `/sat` | — | Submenú de consultas públicas del SAT (CFDI, 69-B, constancia, catálogos) |
 | `/cancel` | — | Cancela un comando pendiente de completar |
-| `/ask <mensaje>` | — | Enruta con IA a la skill correcta |
+| `/ask` | — | Pregunta libre con IA (el bot te pide el mensaje) |
 | `/help` | — | Lista los comandos |
 
 ## Modo interactivo
 
 - **Menú de botones**: con `/menu` (o `/start`) el bot muestra un teclado con los comandos; tocar un botón ejecuta el comando sin escribir nada.
-- **Parámetros guiados**: si un comando necesita un dato y no lo recibes (p. ej. `/cp` sin código, `/precio` sin producto), el bot pregunta y tu siguiente mensaje completa el comando. Con `/cancel` se aborta la pregunta.
+- **Submenú SAT**: con `/sat` (o el botón 🧾 /sat) se despliegan las consultas públicas del SAT: verificar un CFDI, listado 69-B, constancia por QR y catálogos. Usa la skill `sat-consulta` (dependencia `satcfdi`, instalada por `requirements.txt`).
+- **Parámetros guiados**: si un comando necesita un dato y no lo recibes (p. ej. `/cp` sin código, `/precio` sin producto, `/autos` sin marca, `/inmuebles` sin zona), el bot pregunta con un `ForceReply` que **abre el campo de texto automáticamente**; tu siguiente mensaje completa el comando, sin volver a escribir el comando. Con `/cancel` se aborta la pregunta.
 - **Ubicación 📍**: cuando un comando de lugar (`/clima`, `/ecobici`, `/gasolina`, `/aire`, `/banos`, `/ruta`) está esperando un dato, puedes responder enviando tu ubicación (📎 → Ubicación) y se usará como parámetro automáticamente.
 
 ## Ubicación compartida (GPS 📍)
@@ -132,6 +139,11 @@ AI_MODEL=gpt-4o-mini
 
 Ollama local: `AI_API_KEY=ollama`, `AI_BASE_URL=http://localhost:11434/v1`, `AI_MODEL=llama3`. El modelo recibe el catálogo de skills y devuelve `{"skill": "...", "args": [...]}`; el bot ejecuta esa skill.
 
+- `AI_TEMPERATURE` (opcional): **no se envía** por defecto, para ser compatible con modelos que solo aceptan el valor por defecto (p. ej. `gpt-6-luna`, que responde `HTTP 400` con `temperature=0`). Define `AI_TEMPERATURE=0` solo si tu modelo lo soporta.
+- **Límite de tasa**: para no agotar los tokens, `/ask` limita las consultas por usuario: `AI_RATE_LIMIT` (default `5`) por `AI_RATE_WINDOW` segundos (default `60`), más un tope global opcional `AI_RATE_LIMIT_GLOBAL` (default `0` = sin tope global). Al superarlo el bot responde cuántos segundos esperar.
+- **Uso**: toca `/ask` (o escríbelo) y el bot te pide el mensaje con un `ForceReply`; escribe tu pregunta directamente, sin volver a escribir `/ask`. También funciona `/ask <mensaje>`.
+- Los errores de `/ask` se registran con el logger `mx-bot.ai` (petición, respuesta y el cuerpo del error de la API) y el motivo real se muestra en el chat.
+
 ## Configuración extra
 
 - `BOT_DEFAULT_PLACE`: ubicación por defecto para `/ecobici`, `/gasolina`, `/aire`, `/banos` (y `/clima`).
@@ -179,7 +191,7 @@ Notas:
 ```
 tools/mx-telegram-bot/
 ├── bot/
-│   ├── main.py          # construcción de la app, /start /help /ask /menu, dispatch, 📍 ubicación
+│   ├── main.py          # construcción de la app, /start /help /ask /menu /sat, dispatch, 📍 ubicación
 │   ├── config.py        # configuración desde .env
 │   ├── runner.py        # ejecuta los helpers como subproceso y parsea JSON
 │   ├── formatting.py    # utilidades de formato para Telegram (HTML)

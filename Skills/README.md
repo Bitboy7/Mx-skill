@@ -18,6 +18,10 @@ plugin y los tests de skills).
 | `/melate [números]` | `melate-results` | Resultados de la Lotería Nacional / verificar números | loterianacional.gob.mx |
 | `/cp <cp>` | `mx-zipcode-search` | Colonias/estado de un código postal | SEPOMEX (fuentes públicas) |
 | `/rfc <rfc>` | `sat-rfc-lookup` | Valida la estructura de un RFC | SAT |
+| `/sat_factura <UUID> <RFC emisor> <RFC receptor> <total>` | `sat-consulta` | Estatus de un CFDI (vigente/cancelado) | SAT (validación pública) |
+| `/sat_69b <RFC>` | `sat-consulta` | RFC en el listado 69-B (EFOS/EDOS) | SAT (listado 69-B) |
+| `/sat_constancia <RFC> <id_cif>` | `sat-consulta` | Constancia de Situación Fiscal por QR | SAT (validador QR) |
+| `/sat_catalogo <tipo> <clave\|texto>` | `sat-consulta` | Catálogos oficiales (producto, régimen, uso CFDI…) | SAT (catálogos) |
 | `/ecobici <lugar>` | `ecobici-cdmx` | Estaciones de Ecobici CDMX | GBFS oficial |
 | `/cine [funciones]` | `cine-mx` | Cartelera y funciones | Cinemex / Cinépolis |
 | `/candidatos <nombre>` | `comision-ine` | Candidaturas del INE | "Conóceles" |
@@ -34,6 +38,7 @@ plugin y los tests de skills).
 | `/bienestar [tema\|todos]` | `beneficios-programas` | Programas para el Bienestar | Portal oficial |
 | `/empleo <puesto\|skill>` | `mx-job-search` | Vacantes de empleo (tecnología/LATAM) | API pública Vacantes Digitales |
 | `/universidades <carrera\|universidad>` | `mx-university-search` | Universidades de México y sus carreras | Catálogo curado + enlaces oficiales |
+| `/autos <marca> [modelo] [en <estado>]` | `mx-used-car-search` | Autos usados/seminuevos con índice de confianza | Seminuevos.com (anuncios públicos) |
 
 ## Ubicación compartida 📍
 
@@ -48,6 +53,7 @@ Estas skills usan la ubicación que compartas con el bot (📎 → Ubicación):
 - [melate-results](../docs/features/melate-results.md)
 - [mx-zipcode-search](../docs/features/mx-zipcode-search.md)
 - [sat-rfc-lookup](../docs/features/sat-rfc-lookup.md)
+- [sat-consulta](../docs/features/sat-consulta.md)
 - [ecobici-cdmx](../docs/features/ecobici-cdmx.md)
 - [cine-mx](../docs/features/cine-mx.md)
 - [comision-ine](../docs/features/comision-ine.md)
@@ -64,3 +70,4 @@ Estas skills usan la ubicación que compartas con el bot (📎 → Ubicación):
 - [beneficios-programas](../docs/features/beneficios-programas.md)
 - [mx-job-search](../docs/features/mx-job-search.md)
 - [mx-university-search](../docs/features/mx-university-search.md)
+- [mx-used-car-search](../docs/features/mx-used-car-search.md)

@@ -8,7 +8,7 @@ del usuario retoma el comando con el dato faltante vía `resume()`.
 
 from __future__ import annotations
 
-from telegram import ReplyKeyboardMarkup
+from telegram import ForceReply, ReplyKeyboardMarkup
 
 from . import geo
 
@@ -43,33 +43,62 @@ def clear_pending(context) -> bool:
     return False
 
 
+def set_pending(context, command: str, kind: str = "text") -> None:
+    """Marca un comando como pendiente de recibir datos (p. ej. /ask)."""
+    if hasattr(context, "user_data"):
+        context.user_data[PENDING_KEY] = {"command": command, "kind": kind}
+
+
+def get_pending(context):
+    """Devuelve el comando pendiente o None."""
+    if hasattr(context, "user_data"):
+        return context.user_data.get(PENDING_KEY)
+    return None
+
+
 def menu_keyboard() -> ReplyKeyboardMarkup:
-    """Botones con los comandos principales (sin necesidad de escribirlos)."""
+    """Botones con los comandos principales (sin necesidad de escribirlos).
+
+    Se usan 3 columnas para que el teclado sea compacto (8 filas) y quede
+    visible en todos los clientes; `/sat` va en la primera fila.
+    """
     rows = [
-        ["🌤 /clima", "🌬 /aire"],
-        ["⚽ /futbol", "🚲 /ecobici"],
-        ["⛽ /gasolina", "🎰 /melate"],
-        ["📰 /noticias", "🎬 /cine"],
-        ["🛒 /canasta", "📮 /cp"],
-        ["🆔 /rfc", "💰 /precio"],
-        ["🏠 /inmuebles", "📦 /envio"],
-        ["🗺 /ruta", "🚻 /banos"],
-        ["📅 /feriado", "👥 /candidatos"],
-        ["🤝 /bienestar", "📋 /licitaciones"],
-        ["💼 /empleo", "🎓 /universidades"],
-        ["❓ /help"],
+        ["🌤 /clima", "🌬 /aire", "🧾 /sat", "🚗 /autos"],
+        ["⚽ /futbol", "🚲 /ecobici", "⛽ /gasolina"],
+        ["🎰 /melate", "📰 /noticias", "🎬 /cine"],
+        ["🛒 /canasta", "📮 /cp", "🆔 /rfc"],
+        ["💰 /precio", "🏠 /inmuebles", "📦 /envio"],
+        ["🗺 /ruta", "🚻 /banos", "📅 /feriado"],
+        ["👥 /candidatos", "🤝 /bienestar", "📋 /licitaciones"],
+        ["💼 /empleo", "🎓 /universidades", "❓ /help"],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def sat_keyboard() -> ReplyKeyboardMarkup:
+    """Submenú con las consultas públicas del SAT (sin e.firma)."""
+    rows = [
+        ["🧾 /sat_factura", "🕵️ /sat_69b"],
+        ["📄 /sat_constancia", "📚 /sat_catalogo"],
+        ["🆔 /rfc", "🧭 /menu"],
     ]
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 
 
 async def store_and_prompt(update, context, exc: AskInput) -> None:
-    """Responde la pregunta del handler y guarda el comando pendiente."""
+    """Responde la pregunta del handler y guarda el comando pendiente.
+
+    Usa `ForceReply` para que Telegram abra el campo de texto automáticamente,
+    de modo que el usuario solo escribe el dato sin volver a teclear el comando.
+    """
     if hasattr(context, "user_data"):
         context.user_data[PENDING_KEY] = {"command": exc.command, "kind": exc.kind}
     text = exc.prompt
     if exc.kind in ("place", "route"):
         text += "\n\nPuedes escribir el lugar o compartir tu ubicación 📍."
-    await update.effective_message.reply_text(text)
+    await update.effective_message.reply_text(
+        text, reply_markup=ForceReply(selective=True)
+    )
 
 
 async def cancel(update, context) -> str:

@@ -297,3 +297,21 @@
 - 국가교통정보센터 ITS CCTV 정보: https://openapi.its.go.kr:9443/cctvInfo — 공개 데모 키 `test`로 무가입 호출 가능, `getType=json`이어도 성공 응답은 XML, 잘못된 키는 HTTP 401 resultCode 4005
 - 한국은행 ECOS Open API: https://ecos.bok.or.kr/api — positional URL(`/<Service>/<key>/json/kr/...`), 공개 데모 키 `sample`로 무가입 호출 가능(2026-07-21 확인, 호출당 최대 10행/ERROR-301), 잘못된 키는 HTTP 200 + `INFO-100`, 빈 결과는 `INFO-200`
 - 한국일보 공식 원격 MCP 서버: https://mcp.hankookilbo.com/mcp — 한국일보가 직접 운영하는 무인증 공개 Streamable HTTP MCP endpoint. 무상태 구성이라 `initialize`·`Mcp-Session-Id` 없이 단일 POST `tools/call` 이 `application/json` 으로 응답하므로 `hankookilbo-news` 스킬이 MCP SDK 없이 `curl` 로 직접 호출한다(2026-07-29 실측: 무세션 `tools/call` 200 `application/json`, `Accept` 누락 406, `GET` 405). 공식 MCP Registry 등재명은 `com.hankookilbo.mcp/hankookilbo-mcp` 이고, 기사 본문 전문 없이 제목·발행시각·원문 링크·썸네일·짧은 발췌만 반환한다. 원문 URL 에는 서버가 `?did=mcp` 유입 파라미터를 붙인다. 인증이 없으므로 `k-skill-proxy` 를 경유하지 않는다.
+
+### México — SAT (sat-consulta)
+- `python-satcfdi` (librería abierta de CFDI/SAT, MIT): https://github.com/SAT-CFDI/python-satcfdi
+- Validación de CFDI (servicio público SOAP, sin e.firma): https://consultaqr.facturaelectronica.sat.gob.mx/ConsultaCFDIService.svc
+- Listado 69-B (EFOS/EDOS, CSV público): http://omawww.sat.gob.mx/cifras_sat/Documents/Listado_Completo_69-B.csv
+- Validador QR de Constancia de Situación Fiscal (RFC + folio `id_cif`): https://siat.sat.gob.mx/app/qr/faces/pages/mobile/validadorqr.jsf
+- Verificación pública de retenciones: https://prodretencionverificacion.clouda.sat.gob.mx/Home/ConsultaRetencion
+- Certificados públicos de PAC/SAT: https://rdc.sat.gob.mx/rccf/
+- Catálogos del SAT: base `catalogs.db` incluida en `python-satcfdi`
+- **Fuera de alcance** (requieren e.firma/CSD o PAC): descarga masiva, opinión 32-D, constancia con FIEL, DIOT/PLD/contabilidad electrónica y timbrado/cancelación.
+
+### México — Autos usados (mx-used-car-search)
+- Seminuevos.com — autos usados: https://www.seminuevos.com/usados — anuncios públicos renderizados en HTML (server-side). Rutas: `/usados/<estado>/autos/<tipo>/<marca>/<modelo>`; filtros por query `seller=DEALER` (agencias), `page=N` (paginación). El sitio ignora `?q=`/`?search=`; la búsqueda es por marca/modelo en la ruta.
+- Detalle de anuncio: `https://www.seminuevos.com/vehicle/<slug>/<id>`
+- REPUVE (robo/NIV): https://www2.repuve.gob.mx:8443/ciudadano/
+- PROFECO: https://www.profeco.gob.mx/
+- AMIS (robo de vehículos): https://www.amis.org.mx/
+- Nota: la verificación legal del vehículo (robo, adeudos, NIV) es manual/oficial; la skill solo enlaza esas fuentes.

@@ -9,14 +9,19 @@ from __future__ import annotations
 import re
 import time
 
-from telegram import Update
+from telegram import BotCommand, ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, PicklePersistence, filters
 
-from . import ai, config, errors, formatting, geo, interactive, logging_setup, runner
+from . import ai, config, errors, formatting, geo, interactive, logging_setup, ratelimit, runner
 from .skills import list_skills
 from .skills.registry import SkillEntry
 
 logger = logging_setup.configure_logging()
+
+# Límite de tasa para /ask (se reinicia con el bot; estado en memoria).
+ask_limiter = ratelimit.RateLimiter(
+    config.AI_RATE_LIMIT, config.AI_RATE_WINDOW, config.AI_RATE_LIMIT_GLOBAL
+)
 
 
 def _summarize_args(args: list[str]) -> str:
@@ -89,6 +94,20 @@ async def _cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.effective_message.reply_text(await interactive.cancel(update, context))
 
 
+async def _sat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    interactive.clear_pending(context)
+    await update.effective_message.reply_text(
+        "🧾 <b>Consultas del SAT</b>\n"
+        "Servicios públicos, sin e.firma. Toca una opción 👇\n\n"
+        "🔎 <b>Verificar factura:</b> estatus de un CFDI (vigente/cancelado)\n"
+        "🕵️ <b>69-B:</b> RFC en listados EFOS/EDOS\n"
+        "📄 <b>Constancia:</b> por QR (RFC + folio id_cif)\n"
+        "📚 <b>Catálogos:</b> clave de producto/servicio, régimen, uso CFDI…",
+        parse_mode="HTML",
+        reply_markup=interactive.sat_keyboard(),
+    )
+
+
 async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     interactive.clear_pending(context)
     lines = []
@@ -99,7 +118,8 @@ async def _help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             f"   <i>{formatting.esc(entry.usage)}</i>"
         )
     lines.append("")
-    lines.append("🤖 <b>/ask</b> &lt;mensaje&gt; — enruta con IA (requiere AI_API_KEY)")
+    lines.append("🤖 <b>/ask</b> — pregunta libre con IA (el bot te pide el mensaje)")
+    lines.append("🧾 <b>/sat</b> — submenú de consultas del SAT (CFDI, 69-B, constancia, catálogos)")
     lines.append("🧭 <b>/menu</b> — muestra los botones de comandos")
     lines.append("🚫 <b>/cancel</b> — cancela un comando en espera de datos")
     await update.effective_message.reply_text(
@@ -114,14 +134,39 @@ async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     interactive.clear_pending(context)
     query = " ".join(context.args).strip()
     if not query:
-        await update.effective_message.reply_text("Uso: <code>/ask &lt;mensaje&gt;</code>", parse_mode="HTML")
+        # No ejecutamos /ask en vacío: pedimos el mensaje primero (ForceReply abre
+        # el campo de texto) y el siguiente mensaje del usuario se usa como consulta.
+        interactive.set_pending(context, "ask")
+        await update.effective_message.reply_text(
+            "🤖 ¿Qué quieres preguntar? Escribe tu mensaje y lo envío a la IA.\n"
+            "Usa /cancel para abortar.",
+            reply_markup=ForceReply(selective=True),
+        )
         return
     if not _allowed(update.effective_user.id):
         await update.effective_message.reply_text("Este bot es de uso privado.")
         return
+    if not config.AI_API_KEY:
+        await update.effective_message.reply_text(
+            "La capa de IA no está configurada. Añade <code>AI_API_KEY</code> en .env.",
+            parse_mode="HTML",
+        )
+        return
+
+    user_id = getattr(update.effective_user, "id", None)
+    permitido, retry_after = ask_limiter.check(user_id)
+    if not permitido:
+        logger.warning("rate limit /ask user=%s retry_after=%.0fs", user_id, retry_after)
+        await update.effective_message.reply_text(
+            "⏳ Alcanzaste el límite de consultas con IA. "
+            f"Intenta de nuevo en {int(retry_after) + 1} s."
+        )
+        return
+
     try:
         routed = await ai.route_query_async(query)
     except Exception as exc:  # noqa: BLE001
+        logger.exception("IA falló al enrutar user=%s: %s", user_id, exc)
         await update.effective_message.reply_text(f"⚠️ {exc}")
         return
 
@@ -146,6 +191,7 @@ async def _ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         await update.effective_message.reply_text(formatting.mono(data), parse_mode="HTML")
     except runner.SkillError as exc:
+        logger.warning("IA enrutó a %s pero falló: %s", skill_id, exc)
         await update.effective_message.reply_text(f"⚠️ {exc}")
 
 
@@ -163,7 +209,7 @@ async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if match:
         command = match.group(1)
         rest = (match.group(2) or "").strip()
-        handlers = {"start": _start, "help": _help, "menu": _menu, "cancel": _cancel, "ask": _ask}
+        handlers = {"start": _start, "help": _help, "menu": _menu, "cancel": _cancel, "ask": _ask, "sat": _sat}
         entry = list_skills().get(command)
         if command in handlers or entry is not None:
             context.args = rest.split() if rest else []
@@ -173,6 +219,15 @@ async def _on_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             else:
                 await handlers[command](update, context)
             return
+
+    # /ask pendiente: el siguiente mensaje del usuario es la consulta para la IA.
+    pending = interactive.get_pending(context)
+    if pending and pending.get("command") == "ask":
+        interactive.clear_pending(context)
+        context.args = [incoming]
+        logger.info("mensaje libre para /ask user=%s", user_id)
+        await _ask(update, context)
+        return
 
     try:
         text = await interactive.resume(
@@ -242,6 +297,32 @@ async def _on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
             logger.debug("no se pudo avisar al usuario tras el error", exc_info=True)
 
 
+def _bot_commands() -> list[BotCommand]:
+    """Comandos que Telegram muestra en el menú `/` del bot."""
+    commands = [
+        BotCommand("menu", "Muestra los botones de comandos"),
+        BotCommand("sat", "Consultas públicas del SAT (CFDI, 69-B, constancia, catálogos)"),
+        BotCommand("ask", "Enruta un mensaje libre con IA"),
+        BotCommand("help", "Lista los comandos"),
+        BotCommand("cancel", "Cancela un comando pendiente"),
+    ]
+    commands.extend(
+        BotCommand(entry.command, entry.description[:256])
+        for entry in sorted(list_skills().values(), key=lambda e: e.command)
+    )
+    return commands
+
+
+async def _post_init(app: Application) -> None:
+    """Registra los comandos en Telegram al arrancar (menú `/`)."""
+    try:
+        commands = _bot_commands()
+        await app.bot.set_my_commands(commands)
+        logger.info("Comandos registrados en Telegram (%d).", len(commands))
+    except Exception:  # noqa: BLE001
+        logger.warning("No se pudieron registrar los comandos en Telegram.", exc_info=True)
+
+
 def build_app() -> Application:
     if not config.BOT_TOKEN:
         raise SystemExit(
@@ -249,7 +330,7 @@ def build_app() -> Application:
             "(consigue el token con @BotFather)."
         )
 
-    builder = Application.builder().token(config.BOT_TOKEN)
+    builder = Application.builder().token(config.BOT_TOKEN).post_init(_post_init)
     if config.PERSISTENCE_FILE:
         builder = builder.persistence(PicklePersistence(filepath=config.PERSISTENCE_FILE))
     app = builder.build()
@@ -265,6 +346,7 @@ def build_app() -> Application:
     app.add_handler(CommandHandler("menu", _menu))
     app.add_handler(CommandHandler("cancel", _cancel))
     app.add_handler(CommandHandler("ask", _ask))
+    app.add_handler(CommandHandler("sat", _sat))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, _on_text))
     return app
 
@@ -277,11 +359,15 @@ def _log_startup_summary() -> None:
         ", ".join(sorted("/" + command for command in skills)),
     )
     logger.info(
-        "Config: lugar_por_defecto=%r whitelist=%d persistencia=%s ia=%s log_level=%s log_file=%s",
+        "Config: lugar_por_defecto=%r whitelist=%d persistencia=%s ia=%s "
+        "rate_limit=%d/%ss global=%d log_level=%s log_file=%s",
         config.DEFAULT_PLACE,
         len(config.ALLOWED_USER_IDS),
         config.PERSISTENCE_FILE or "memoria",
         "activa" if config.AI_API_KEY else "desactivada",
+        config.AI_RATE_LIMIT,
+        config.AI_RATE_WINDOW,
+        config.AI_RATE_LIMIT_GLOBAL,
         config.LOG_LEVEL,
         config.LOG_FILE or "solo stdout",
     )

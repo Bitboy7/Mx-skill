@@ -24,8 +24,20 @@ def install() -> None:
             self.args = args
             self.kwargs = kwargs
 
+    class BotCommand:
+        def __init__(self, command, description=None):
+            self.command = command
+            self.description = description
+
+    class ForceReply:
+        def __init__(self, *args, **kwargs):
+            self.args = args
+            self.kwargs = kwargs
+
     telegram.Update = Update
     telegram.ReplyKeyboardMarkup = ReplyKeyboardMarkup
+    telegram.BotCommand = BotCommand
+    telegram.ForceReply = ForceReply
 
     error = types.ModuleType("telegram.error")
 
